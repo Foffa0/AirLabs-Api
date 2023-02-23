@@ -1,0 +1,55 @@
+{% extends "public/templates/public_template.html" %}
+{% block content %}
+<div class="background">
+    <header class="header-alerts container">
+        <div class="header-text">
+            <h2>Your Alerts</h2>
+            <p>Manage your Airports and Aircrafts to get Notifications directly onto your phone.</p>
+        </div>
+    </header>
+</div>
+<div class="alert-section container">
+    <div class="airports">
+        <h2>My Airports</h2>
+        <div class="search">
+            <form id="airport-search-form" method="POST" action="">
+                {{ form.hidden_tag() }}
+                <div class="searchbar">
+                    {% if form.query.errors %}
+                        {{ form.query(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.query.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.query(id="airport-search", placeholder="Search...") }}
+                    {% endif %}
+                    {{ form.submit(class="search-btn", value="", style="z-index: 10;") }}
+                    <button type="button" class="search-btn"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+            {% if airportResults %}
+                {% for airport in airportResults %}
+                    <div class="result">
+                        <p>{{ airport.name }} ({{ airport.iata_code }}/{{ airport.icao_code }})</p>
+                        <button class="new-btn" type="button" onclick="window.location.href='/save-airport/{{ airport.icao_code }}';">Add <i class="fa-solid fa-plus"></i></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="airport-list">
+            {% if airports %}
+                {% for airport in airports %}
+                    <div class="airport">
+                        <button type="button" class="collapsible">{{ airport.name }} ({{ airport.country_code }}) - {{ airport.iata_code }}/{{ airport.icao_code }}</button>
+                        <div class="content">
+                            <p>Lorem ipsum...</p>
+                        </div> 
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
