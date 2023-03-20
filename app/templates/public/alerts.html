@@ -12,7 +12,7 @@
     <div class="airports">
         <h2>My Airports</h2>
         <div class="search">
-            <form id="airport-search-form" method="POST" action="">
+            <form id="airport-search-form" method="POST" action="{{ url_for('main.searchAirport') }}">
                 {{ form.hidden_tag() }}
                 <div class="searchbar">
                     {% if form.query.errors %}
@@ -42,9 +42,35 @@
             {% if airports %}
                 {% for airport in airports %}
                     <div class="airport">
-                        <button type="button" class="collapsible">{{ airport.name }} ({{ airport.country_code }}) - {{ airport.iata_code }}/{{ airport.icao_code }}</button>
+                        <button type="button" class="collapsible active">{{ airport.name }} ({{ airport.country_code }}) - {{ airport.iata_code }}/{{ airport.icao_code }}</button>
                         <div class="content">
-                            <p>Lorem ipsum...</p>
+                            <div class="search">
+                                <form id="aircraft-search-form" method="POST" action="{{ url_for('main.searchAircraft') }}">
+                                    {{ aircraftForm.hidden_tag() }}
+                                    <div class="searchbar">
+                                        {% if aircraftForm.query.errors %}
+                                            {{ aircraftForm.query(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in aircraftForm.query.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ aircraftForm.query(id="aircraft-search", placeholder="Search Aircraft") }}
+                                        {% endif %}
+                                        {{ aircraftForm.submit(class="search-btn", value="", style="z-index: 10;") }}
+                                        <button type="button" class="search-btn"><i class="fa fa-search"></i></button>
+                                    </div>
+                                </form>
+                                {% if aircraftResults %}
+                                    {% for aircraft in aircraftResults %}
+                                        <div class="result">
+                                            <p>{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }})</p>
+                                            <button class="new-btn" type="button" onclick="window.location.href='/save-aircraft/{{ aircraft.icao_code }}';">Add <i class="fa-solid fa-plus"></i></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
                         </div> 
                     </div>
                 {% endfor %}
