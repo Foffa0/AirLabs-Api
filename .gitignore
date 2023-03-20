@@ -1,2 +1,7 @@
 /.venv
 __pycache__/
+public_key.txt
+private_key.txt
+vapid_private.pem
+node_modules
+flightalert-380817-firebase-adminsdk-1qvse-169fe1210c.json
