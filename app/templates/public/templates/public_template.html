@@ -9,24 +9,49 @@
     {% else %}
         <title>Flight Alert</title>
     {% endif %}
-    <link rel="stylesheet" href="../../../static/style.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 </head>
 <body>
     <nav class="container">
         <a class="navbar-brand" href="">
-            <img src="../../../static/img/logo.png" alt="logo">
+            <img src="{{url_for('static', filename='img/logo.png') }}" alt="logo">
         </a>
-        <div class="nav-links">
-            <a href="">Home</a>
-            <a href="">Alerts</a>
-            <a href="">Profile</a>
-            <a href="">Logout</a>
+        <div id="topnav" class="nav-links">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.alerts') }}">Alerts</a>
+            {% if current_user.confirmed and current_user.is_authenticated %}
+            <a href="{{ url_for('users.account') }}">Profile</a>
+            <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
+            {% elif current_user.is_authenticated %}
+            <a href="{{ url_for('users.unconfirmed') }}">Confirm</a>
+            <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
+            {% else %}
+            <a class="login-link" href="{{ url_for('users.login') }}">Login</a>
+            {% endif %}
+            <a href="javascript:void(0);" class="icon" onclick="openNav()">
+                <i class="fa fa-bars"></i>
+            </a>
+        </div>
+        <div id="sidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.alerts') }}">Alerts</a>
+            {% if current_user.confirmed and current_user.is_authenticated %}
+            <a href="{{ url_for('users.account') }}">Profile</a>
+            <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
+            {% elif current_user.is_authenticated %}
+            <a href="{{ url_for('users.unconfirmed') }}">Confirm</a>
+            <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
+            {% else %}
+            <a class="login-link" href="{{ url_for('users.login') }}">Login</a>
+            {% endif %}
         </div>
     </nav>
-    
+    <main>
+        <div id="overlay"></div>
     {% block content %}{% endblock content %}
-
+    </main>
     <script src="../../../static/script.js"></script>
 </body>
 </html>

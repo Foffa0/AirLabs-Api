@@ -12,3 +12,18 @@ for (i = 0; i < coll.length; i++) {
         } 
     });
 }
+
+/* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
+function openNav() {
+    document.getElementById("sidenav").style.width = "250px";
+    var main = document.getElementsByTagName("main")[0];
+    main.style.marginLeft = "250px";
+    document.getElementById("overlay").style.display = "block"
+  }
+  
+  function closeNav() {
+    document.getElementById("sidenav").style.width = "0";
+    var main = document.getElementsByTagName("main")[0];
+    main.style.marginLeft= "0";
+    document.getElementById("overlay").style.display = "none"
+  }
