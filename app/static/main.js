@@ -156,7 +156,7 @@ function appendMessage(payload) {
   const dataElement = document.createElement('pre');
   dataElement.style = 'overflow-x:hidden;';
   dataHeaderElement.textContent = 'Received message:';
-  dataElement.textContent = 'hello'//JSON.stringify(payload, null, 2);
+  dataElement.textContent = JSON.stringify(payload, null, 2);
   messagesElement.appendChild(dataHeaderElement);
   messagesElement.appendChild(dataElement);
 };
@@ -179,11 +179,15 @@ function updateUIForPushPermissionRequired() {
   showHideDiv(tokenDivId, false);
   showHideDiv(permissionDivId, true);
 };
-
+/*
 onMessage((payload) => {
   console.log('Message received. ', payload);
   // Update the UI to include the received message.
   appendMessage(payload);
+});*/
+onMessage(messaging, (payload) => {
+  console.log('Message received. ', payload);
+  appendMessage(payload)
 });
 
 window.onload = function() {
@@ -195,7 +199,6 @@ window.onload = function() {
     });
   }
   resetUI();
-  appendMessage("EE")
 };
 
 document.getElementById("permission-btn").addEventListener("click", requestPermission); 
