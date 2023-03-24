@@ -2,7 +2,8 @@ from flask import render_template, Blueprint, redirect, url_for, current_app
 from flask_login import current_user
 from flask_login import login_required
 #from app.models import Recipe
-#from app import db
+from app import db
+from app.models import User, Aircraft, Airport
 import requests
 from requests.exceptions import HTTPError
 from app.main.forms import AirportForm, AircraftForm
@@ -10,6 +11,8 @@ from app.data.airport import Airport
 from app.data.aircraft import Aircraft
 import json
 from app.tasks.scraper import FlightAwareScraper
+from app.decorators import check_confirmed
+
 
 main = Blueprint('main', __name__)
 
@@ -22,12 +25,16 @@ def index():
     return render_template("public/index.html")
 
 @main.route("/alerts", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
 def alerts():
     form = AirportForm()
     aircraftForm = AircraftForm()
     return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airports=savedAirports)
 
 @main.route("/search-airport", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
 def searchAirport():
     form = AirportForm()
     aircraftForm = AircraftForm()
@@ -52,6 +59,8 @@ def searchAirport():
 
 
 @main.route("/search-aircraft", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
 def searchAircraft():
     form = AirportForm()
     aircraftForm = AircraftForm()
@@ -79,6 +88,8 @@ def searchAircraft():
     return redirect(url_for('main.alerts'))
 
 @main.route("/save-airport/<string:icao_code>", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
 def saveAirport(icao_code):
     try:
         response = requests.get(f'https://airlabs.co/api/v9/suggest?q={icao_code}&api_key={current_app.config["AIR_LABS_API_KEY"]}')
@@ -98,6 +109,8 @@ def saveAirport(icao_code):
     return redirect(url_for('main.alerts'))
 
 @main.route("/save-aircraft/<string:icao_code>", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
 def saveAircraft(icao_code):
     with open("app/data/aircrafts.json", "r", encoding="utf8") as read_file:
             data = json.load(read_file)
