@@ -1,0 +1,120 @@
+{% extends "public/templates/public_template.html" %}
+{% block content %}
+<div class="account container">
+    <h1>My Account</h1>
+    <h2>Update your name and email address</h2>
+    <div class="account-summary">
+        <form method="POST" action="">
+            {{ accountForm.hidden_tag() }}
+            <div class="account-info-wrapper">
+                <div class="account-info">
+                    <label for="firstName">First name:</label>
+                    <div class="account-value" name="firstName">{{ user.firstName }}</div>
+                </div>
+                <div class="account-info-edit invisible">
+                    {{ accountForm.firstName.label() }}
+                    {% if accountForm.firstName.errors %}
+                        {{ accountForm.firstName(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in accountForm.firstName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ accountForm.firstName() }}
+                    {% endif %}
+                </div>
+                <div class="account-info">
+                    <label for="lastName">Last name:</label>
+                    <div class="account-value" name="lastName">{{ user.lastName }}</div>
+                </div>
+                <div class="account-info-edit invisible">
+                    {{ accountForm.lastName.label() }}
+                    {% if accountForm.lastName.errors %}
+                        {{ accountForm.lastName(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in accountForm.lastName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ accountForm.lastName() }}
+                    {% endif %}
+                </div>
+                <div class="account-info">
+                    <label for="email">Email address:</label>
+                    <div class="account-value" name="email">{{ user.email }}</div>
+                </div>
+                <div class="account-info-edit invisible">
+                    {{ accountForm.email.label() }}
+                    {% if accountForm.email.errors %}
+                        {{ accountForm.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in accountForm.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ accountForm.email() }}
+                    {% endif %}
+                </div>
+            </div>
+            <a id="change-btn" href="javascript:void(0);" onclick="editAccount()"><button class="account-btn" type="button">Change</button></a>
+            <input id="account-submit-btn" type="submit" class="account-btn invisible" value="Save">
+            <button id="cancel-btn" type="button" class="account-btn invisible" onclick="editAccount()">Cancel</button>
+        </form>
+        <h2>Update your password</h2>
+        <form method="POST" action="">
+            {{ passwordForm.hidden_tag() }}
+            <div class="account-info-wrapper">
+                <div class="account-info-pw">
+                    <label for="password">Password</label>
+                    <div class="account-value" name="password">*****</div>
+                </div>
+                <div class="account-info-edit-pw invisible">
+                    {{ passwordForm.oldPassword.label() }}
+                    {% if passwordForm.oldPassword.errors %}
+                        {{ passwordForm.oldPassword(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in passwordForm.oldPassword.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ passwordForm.oldPassword() }}
+                    {% endif %}
+                </div>
+                <div class="account-info-edit-pw invisible">
+                    {{ passwordForm.newPassword.label() }}
+                    {% if passwordForm.newPassword.errors %}
+                        {{ passwordForm.newPassword(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in passwordForm.newPassword.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ passwordForm.newPassword() }}
+                    {% endif %}
+                </div>
+                <div class="account-info-edit-pw invisible">
+                    {{ passwordForm.confirmPassword.label() }}
+                    {% if passwordForm.confirmPassword.errors %}
+                        {{ passwordForm.confirmPassword(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in passwordForm.confirmPassword.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ passwordForm.confirmPassword() }}
+                    {% endif %}
+                </div>
+            </div>
+            <a id="change-btn-pw" href="javascript:void(0);" onclick="editPassword()"><button class="account-btn" type="button">Change</button></a>
+            <input id="account-submit-btn-pw" type="submit" class="account-btn invisible" value="Save">
+            <button id="cancel-btn-pw" type="button" class="account-btn invisible" onclick="editPassword()">Cancel</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

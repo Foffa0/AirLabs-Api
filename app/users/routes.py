@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 #from app import db, bcrypt
 from app.models import User
-from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, UpdatePasswordForm
 from app.config import Config
 from app import db, bcrypt
 import datetime
@@ -23,13 +23,13 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.date.today())
+        user = User(firstName=form.firstName.data, lastName=form.lastName.data, email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.date.today())
         db.session.add(user)
         db.session.commit()
         send_activation_email(user)
         login_user(user)
         return redirect(url_for('users.unconfirmed'))
-    return render_template('public/register.html', title='Registrieren', form=form)
+    return render_template('public/register.html', title='Register FlightAlert Account', form=form)
 
 @users.route('/account/confirm/<token>')
 @login_required
@@ -82,7 +82,7 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('main.index'))
         else:
             flash('Login failed. Please check your email and password!', 'danger')
-    return render_template('public/login.html', title='Login', form=form)
+    return render_template('public/login.html', title='Login - FlightAlert', form=form)
     
 @users.route("/logout")
 def logout():
@@ -94,12 +94,27 @@ def logout():
 @check_confirmed
 def account():
     form = UpdateAccountForm()
+    pw_form = UpdatePasswordForm()
 
     if form.validate_on_submit():
         current_user.email = form.email.data
+        current_user.firstName = form.firstName.data
+        current_user.lastName = form.lastName.data
         db.session.commit()
         flash('Your account information has been successfully updated.', 'success')
-        return redirect(url_for('users.account'))
+        return render_template('public/account.html', title='Account - AirportActivity', accountForm=form, passwordForm=pw_form, user=current_user)
     elif request.method == 'GET':
         form.email.data = current_user.email
-    return render_template('user/account.html', title='Account - AirportActivity')
+        form.firstName.data = current_user.firstName
+        form.lastName.data = current_user.lastName
+    
+    if pw_form.validate_on_submit():
+        if not bcrypt.check_password_hash(current_user.password, pw_form.oldPassword.data):
+            flash('Wrong password. Please try again!', 'warning')
+            return render_template('public/account.html', title='Account - AirportActivity', accountForm=form, passwordForm=pw_form, user=current_user)
+
+        hashed_password = bcrypt.generate_password_hash(pw_form.newPassword.data).decode('utf-8')
+        current_user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been successfully updated.', 'success')
+    return render_template('public/account.html', title='Account - AirportActivity', accountForm=form, passwordForm=pw_form, user=current_user)

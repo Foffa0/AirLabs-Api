@@ -17,7 +17,7 @@
 }
 
 .container {
-    max-width: 1040px;
+    max-width: 1170px;;
     margin-left: auto;
     margin-right: auto;
 }
@@ -431,6 +431,91 @@ main {
 #remember {
     width: 20px;
     height: 20px;
+}
+
+/**
+* account.html
+**/
+
+.account h1 {
+    text-transform: uppercase;
+    font-size: 2.5rem;
+    padding-block: 2rem;
+}
+
+.account h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.account-info-wrapper {
+    background-color: #fafafa;
+    margin-bottom: 20px;
+    padding: 0 10px;
+    border-radius: 2px;
+}
+
+.account-summary h2 {
+    margin-top: 8rem;
+}
+
+.account-info,
+.account-info-edit,
+.account-info-pw,
+.account-info-edit-pw {
+    display: flex;
+    flex-flow: row nowrap;
+    font-size: 1rem;
+    line-height: 2.5rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.account-info label,
+.account-info-edit label,
+.account-info-pw label,
+.account-info-edit-pw label {
+    flex-basis: 33.333%;
+    font-weight: 600;
+}
+
+.account-info .account-value,
+.account-info-edit input,
+.account-info-pw .account-value,
+.account-info-edit-pw input {
+    flex-basis: 66.666%;
+    font-weight: 200;
+}
+
+.account-info-edit input,
+.account-info-edit-pw input{
+    width: 100%;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    box-sizing: border-box;
+    padding-inline: .5rem;
+    font-size: 1rem;
+}
+
+.account-btn {
+    background-color: var(--primary-color);
+    float: right;
+    border: none;
+    color: #fff;
+    margin: 0px 5px;
+    padding: 8px 13px;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    border-radius: 0;
+    text-align: center;
+    cursor: pointer;
+}
+
+.invisible {
+    display: none !important;
 }
 
 @media (max-width: 75em){

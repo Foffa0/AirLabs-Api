@@ -10,8 +10,10 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    firstName = db.Column(db.String(40), nullable=False)
+    lastName = db.Column(db.String(40), nullable=False)
+    email = db.Column(db.String(128), unique=True, nullable=False)
+    password = db.Column(db.String(50), nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
@@ -46,7 +48,7 @@ class User(db.Model, UserMixin):
         return user_email
 
     def __repr__(self):
-        return f"User('{self.email}', '{self.admin}')"
+        return f"User('{self.firstName}', '{self.lastName}', '{self.email}', '{self.admin}')"
 
 class Airport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
