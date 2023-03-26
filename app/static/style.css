@@ -582,6 +582,18 @@ main {
         float: right;
         margin-right: 1rem;
     }
+
+    .account-info,
+    .account-info-edit,
+    .account-info-pw,
+    .account-info-edit-pw {
+        flex-flow: row wrap;
+    }
+    .account-info-wrapper label,
+    .account-info-wrapper .account-value,
+    .account-info-wrapper input {
+        flex-basis: 100%;
+    }
 }
 
 @media (max-width: 40em) {
@@ -602,6 +614,6 @@ main {
         width: 100%;
     }
     .container {
-        margin-inline: 2rem;
+        margin-inline: 0rem;
     }
 }
