@@ -23,7 +23,11 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.query(id="airport-search", placeholder="Search...") }}
+                        {% if searchAirportIcao %}
+                            {{ form.query(id="airport-search", placeholder="Search...", value="") }}
+                        {% else %}
+                            {{ form.query(id="airport-search", placeholder="Search...") }}
+                        {% endif %}
                     {% endif %}
                     {{ form.submit(class="search-btn", value="", style="z-index: 10;") }}
                     <button type="button" class="search-btn"><i class="fa fa-search"></i></button>
@@ -31,9 +35,18 @@
             </form>
             {% if airportResults %}
                 {% for airport in airportResults %}
+                {% set ns = namespace(found=false) %}
                     <div class="result">
                         <p>{{ airport.name }} ({{ airport.iata_code }}/{{ airport.icao_code }})</p>
-                        <button class="new-btn" type="button" onclick="window.location.href='/save-airport/{{ airport.icao_code }}';">Add <i class="fa-solid fa-plus"></i></button>
+                        {% for airport_ in airports %}
+                            {% if airport_.icao == airport.icao_code %}
+                                <button class="new-btn" type="button" style="background-color: rgb(0, 202, 34) !important;">Added <i class="fa fa-solid fa-check"></i></button>
+                                {% set ns.found = true %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if not ns.found %}
+                        <button class="new-btn" type="button" onclick="window.location.href='/save-airport/{{ airport.icao_code }}';">Add <i class="fa fa-solid fa-plus"></i></button>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
@@ -42,11 +55,19 @@
             {% if airports %}
                 {% for airport in airports %}
                     <div class="airport">
-                        <button type="button" class="collapsible active">{{ airport.name }} ({{ airport.country_code }}) - {{ airport.iata_code }}/{{ airport.icao_code }}</button>
+                        
+                        {% if airport.icao == searchAirportIcao %}
+                        <button type="button" class="collapsible">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
+                        <div class="content" style="max-height: 100%;">
+                        {% else %}
+                        <button type="button" class="collapsible active">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
                         <div class="content">
+                        {% endif %}
+                        
                             <div class="search">
                                 <form id="aircraft-search-form" method="POST" action="{{ url_for('main.searchAircraft') }}">
                                     {{ aircraftForm.hidden_tag() }}
+                                    {{ aircraftForm.airport_icao(value=airport.icao, class_="invisible") }}
                                     <div class="searchbar">
                                         {% if aircraftForm.query.errors %}
                                             {{ aircraftForm.query(class="form-control form-control-lg is-invalid") }}
@@ -63,14 +84,37 @@
                                     </div>
                                 </form>
                                 {% if aircraftResults %}
-                                    {% for aircraft in aircraftResults %}
-                                        <div class="result">
-                                            <p>{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }})</p>
-                                            <button class="new-btn" type="button" onclick="window.location.href='/save-aircraft/{{ aircraft.icao_code }}';">Add <i class="fa-solid fa-plus"></i></button>
-                                        </div>
-                                    {% endfor %}
+                                    {% if airport.icao == searchAirportIcao %}
+                                        {% for aircraft in aircraftResults %}
+                                            {% set ns = namespace(found=false) %}
+                                            <div class="result">
+                                                <p>{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }})</p>
+                                                {% for aircraft_ in aircrafts %}
+                                                    {% if aircraft_.airport_id == airport.id %}
+                                                        {% if aircraft_.icao == aircraft.icao_code %}
+                                                            <button class="new-btn" type="button" style="background-color: rgb(0, 202, 34) !important;">Added <i class="fa fa-solid fa-check"></i></button>
+                                                            {% set ns.found = true %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if not ns.found %}
+                                                <button class="new-btn" type="button" onclick="window.location.href='/save-aircraft/{{ aircraft.icao_code }}/{{ airport.id }}';">Add <i class="fa fa-solid fa-plus"></i></button>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 {% endif %}
                             </div>
+                            <h2>My aircrafts</h2>
+                            {% for aircraft in aircrafts %}
+                                {% if aircraft.airport_id == airport.id %}
+                                <div class="result">
+                                    <p style="padding-block: .75rem;">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao }})</p>
+                                    <button class="new-btn delete-btn delete-aircraft" type="button" onclick="window.location.href='/delete-aircraft/{{ aircraft.id }}';">Delete aircraft <i class="fa fa-solid fa-trash"></i></button>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            <button class="new-btn delete-btn" type="button" onclick="window.location.href='/delete-airport/{{ airport.id }}';">Delete airport <i class="fa fa-solid fa-trash"></i></button>
                         </div> 
                     </div>
                 {% endfor %}
