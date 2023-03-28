@@ -23,6 +23,10 @@
 }
 
 nav {
+    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
+}
+
+nav .container{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -341,10 +345,21 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: white;
 }
 
 .result p {
     margin-inline: 1rem;
+    margin-bottom: 0rem;
+}
+
+.fa {
+    display: flex;
+    align-items: center;
+}
+
+.airport {
+    margin-bottom: 1rem;
 }
 
 .airport:has(.active) {
@@ -362,6 +377,7 @@ main {
     text-align: left;
     outline: none;
     font-size: 15px;
+    box-shadow:0 8px 6px 1px rgba(0, 0, 0, 0.2);
 }
 
 .collapsible:hover {
@@ -392,6 +408,22 @@ main {
     background-color: hsla(226, 81%, 56%, 0.05);
 }
 
+.delete-btn {
+    width: 100%;
+    margin-block: 1rem;
+    display: flex;
+    justify-content: center;
+    background-color: rgb(221, 0, 0);
+    margin-top: 3rem;
+    padding: .75rem;
+}
+
+.delete-aircraft {
+    margin: 0rem;
+    width: auto;
+    padding: 1rem;
+}
+
 /**
 * login page
 **/
@@ -409,6 +441,7 @@ main {
       url('/static/img/airport-bg.jpg');
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
 }
 
 .form-signin img {
