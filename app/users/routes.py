@@ -2,11 +2,11 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 #from app import db, bcrypt
 from app.models import User
-from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, UpdatePasswordForm
+from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, UpdatePasswordForm, RequestResetForm, ResetPasswordForm
 from app.config import Config
 from app import db, bcrypt
 import datetime
-from app.users.utils import send_activation_email
+from app.users.utils import send__email
 from app.decorators import check_confirmed
 
 users = Blueprint('users', __name__)
@@ -26,7 +26,7 @@ def register():
         user = User(firstName=form.firstName.data, lastName=form.lastName.data, email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.date.today())
         db.session.add(user)
         db.session.commit()
-        send_activation_email(user)
+        send__email(user, 0)
         login_user(user)
         return redirect(url_for('users.unconfirmed'))
     return render_template('public/register.html', title='Register FlightAlert Account', form=form)
@@ -57,7 +57,7 @@ def confirm_email(token):
 @users.route('/resend')
 @login_required
 def resend_confirmation():
-    send_activation_email(current_user)
+    send__email(current_user, 0)
     flash('A new confirmation email has been sent.', 'success')
     return redirect(url_for('users.unconfirmed'))
 
@@ -118,3 +118,32 @@ def account():
         db.session.commit()
         flash('Your password has been successfully updated.', 'success')
     return render_template('public/account.html', title='Account - AirportActivity', accountForm=form, passwordForm=pw_form, user=current_user)
+
+@users.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send__email(user, 1)
+        flash(f'An email with a reset link has been sent to {user.email}.', 'info')
+        return redirect(url_for('users.login'))
+    return render_template('public/reset_request.html', title='Request password reset', form=form)
+
+@users.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+        return redirect(url_for('users.reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated! You can log in now.', 'success')
+        return redirect(url_for('users.login'))
+    return render_template('public/reset_password.html', title='Reset FlightAlert password', form=form)

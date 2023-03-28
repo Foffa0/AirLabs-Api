@@ -42,3 +42,17 @@ class UpdatePasswordForm(FlaskForm):
     newPassword = PasswordField('New password', validators=[DataRequired(), Length(min=5, max=50)])
     confirmPassword = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('newPassword')])
     submit = SubmitField('Save')
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Send reset link')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError('No account with this email available. You must create an account first!')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New password', validators=[DataRequired(), Length(min=5, max=50)])
+    confirmPassword = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Save')

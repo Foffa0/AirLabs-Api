@@ -45,7 +45,12 @@
     </form>  
     <div class="border-top pt-3">
         <small class="text-muted">
-            Du hast noch keinen Account? <a class="ml-2" href="{{ url_for('users.register') }}">Jetzt registrieren</a>
+            Don't have an account yet? <a class="ml-2" href="{{ url_for('users.register') }}">Register</a>
+        </small>
+    </div>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Forgot password? <a class="ml-2" href="{{ url_for('users.reset_request') }}">Reset password</a>
         </small>
     </div>
   </div>

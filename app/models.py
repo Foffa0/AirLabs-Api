@@ -20,15 +20,15 @@ class User(db.Model, UserMixin):
     confirmed_on = db.Column(db.DateTime, nullable=True)
     airports = db.relationship('Airport', backref='author', lazy=True)
 
-    def get_reset_token(self, expires_sec=1800):
-        s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
-        return s.dumps({'user_id': self.id}).decode('utf-8')
+    def get_reset_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps(self.id, salt=current_app.config['SECURITY_PASSWORD_SALT'])
 
     @staticmethod
-    def verify_reset_token(token):
+    def verify_reset_token(token, expiration=18000):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            user_id = s.loads(token)['user_id']
+            user_id = s.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
         except:
             return None
         return User.query.get(user_id)
@@ -38,12 +38,11 @@ class User(db.Model, UserMixin):
         return s.dumps(self.email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
 
     @staticmethod
-    def verify_activation_token(token, expiration=3600):
+    def verify_activation_token(token, expiration=18000):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             user_email = s.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
-        except Exception as e: 
-            print(e)
+        except: 
             return None
         return user_email
 
