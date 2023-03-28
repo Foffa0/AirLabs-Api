@@ -1,4 +1,4 @@
-class Airport():
+class Airport_info():
 
     def __init__(self, data):
         self.data = data

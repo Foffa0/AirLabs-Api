@@ -1,4 +1,4 @@
-class Aircraft():
+class Aircraft_Info():
 
     def __init__(self, data):
         self.data = data
