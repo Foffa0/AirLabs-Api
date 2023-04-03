@@ -30,8 +30,9 @@ const messaging = getMessaging(app);
 var sw_registration = null
 
 // IDs of divs that display registration token UI or request permission UI.
-const tokenDivId = 'token_div';
+const deleteTokenDivId = 'delete-token_div';
 const permissionDivId = 'permission_div';
+const requestTokenDivId = 'request-token_div'
 
 // Handle incoming messages. Called when:
 // - a message is received while the app has focus
@@ -41,13 +42,14 @@ const permissionDivId = 'permission_div';
 
 function resetUI() {
   clearMessages();
-  showToken('loading...');
+  //showToken('loading...');
   // Get registration token. Initially this makes a network call, once retrieved
   // subsequent calls to getToken will return from cache.
   getToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI', serviceWorkerRegistration: sw_registration,}).then((currentToken) => {
     if (currentToken) {
       sendTokenToServer(currentToken);
-      updateUIForPushEnabled(currentToken);
+      updateUIForPushEnabled();
+      setLastToken(currentToken);
     } else {
       // Show permission request.
       console.log('No registration token available. Request permission to generate one.');
@@ -57,32 +59,30 @@ function resetUI() {
     }
   }).catch((err) => {
     console.log('An error occurred while retrieving token. ', err);
-    showToken('Error retrieving registration token. ', err);
+    //showToken('Error retrieving registration token. ', err);
     setTokenSentToServer(false);
     updateUIForPushPermissionRequired();
   });
-  (error) => {
-    console.error(`Service worker registration failed: ${error}`);
-  };
-
 };
 
-
+/*
 function showToken(currentToken) {
   // Show token in console and UI.
   const tokenElement = document.querySelector('#token');
   tokenElement.textContent = currentToken;
-};
+};*/
 
 // Send the registration token your application server, so that it can:
 // - send messages back to this app
 // - subscribe/unsubscribe the token from topics
 function sendTokenToServer(currentToken) {
-  //if (!isTokenSentToServer()) {
-  if (true) {
+  if (!isTokenSentToServer() || !compareWithLastToken(currentToken)) {
+    if (!window.localStorage.getItem('last_Token') === null) {
+      delete_Token(window.localStorage.getItem('last_Token'));
+    }
     console.log('Sending token to server...');
-    // TODO(developer): Send the current token to your server.
-    fetch("/postmethod", {
+    //Send the current token to your server.
+    fetch("/add-token", {
       method: "POST",
       body: JSON.stringify({
         token: currentToken,
@@ -105,6 +105,14 @@ function isTokenSentToServer() {
 
 function setTokenSentToServer(sent) {
   window.localStorage.setItem('sentToServer', sent ? '1' : '0');
+};
+
+function setLastToken(token) {
+  window.localStorage.setItem('last_Token', String(token));
+};
+
+function compareWithLastToken(token) {
+  return window.localStorage.getItem('last_Token') === token;
 };
 
 function showHideDiv(divId, show) {
@@ -131,22 +139,44 @@ function requestPermission() {
   });
 };
 
-function delete_Token() {
-  // Delete registration token.
-  /*deleteToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI'}).then(() => {
-    console.log('Token deleted.');
-    setTokenSentToServer(false);
-    // Once token is deleted update UI.
-    //resetUI();
-  }).catch((err) => {
-    console.log('Unable to delete token. ', err);
-  });*/
-  deleteToken(messaging).then(() => {
-    console.log('Token deleted.');
-    setTokenSentToServer(false);
-  }).catch((err) => {
-    console.log('Unable to delete token. ', err);
-  });
+function delete_Token(token=null) {
+  console.log(token)
+  if (token != null) {
+    console.log("token: " + token)
+    fetch("/remove-token", {
+      method: "POST",
+      body: JSON.stringify({
+        token: token,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    });
+  } else {
+    getToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI', serviceWorkerRegistration: sw_registration,}).then((currentToken) => {
+      deleteToken(messaging).then(() => {
+        console.log('Token deleted.');
+        fetch("/remove-token", {
+          method: "POST",
+          body: JSON.stringify({
+            token: currentToken,
+          }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8"
+          }
+        });
+        setTokenSentToServer(false);
+        updateUIForPushDisabled()
+      }).catch((err) => {
+        console.log('Unable to delete token. ', err);
+      });
+    }).catch((err) => {
+      console.log('An error occurred while retrieving token. ', err);
+      //showToken('Error retrieving registration token. ', err);
+      setTokenSentToServer(false);
+      updateUIForPushPermissionRequired();
+    });
+  };
 };
 
 // Add a message to the messages element.
@@ -169,14 +199,22 @@ function clearMessages() {
   }
 };
 
-function updateUIForPushEnabled(currentToken) {
-  showHideDiv(tokenDivId, true);
+function updateUIForPushEnabled() {
+  showHideDiv(deleteTokenDivId, true);
   showHideDiv(permissionDivId, false);
-  showToken(currentToken);
+  showHideDiv(requestTokenDivId, false)
+  //showToken(currentToken);
+};
+
+function updateUIForPushDisabled() {
+  showHideDiv(deleteTokenDivId, false);
+  showHideDiv(permissionDivId, false);
+  showHideDiv(requestTokenDivId, true)
+  //showToken(currentToken);
 };
 
 function updateUIForPushPermissionRequired() {
-  showHideDiv(tokenDivId, false);
+  showHideDiv(deleteTokenDivId, false);
   showHideDiv(permissionDivId, true);
 };
 /*
@@ -196,10 +234,17 @@ window.onload = function() {
     navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
     .then((registration) => {
       sw_registration=registration
+    },
+    (error) => {
+      console.error(`Service worker registration failed: ${error}`);
     });
+    
   }
   resetUI();
 };
 
 document.getElementById("permission-btn").addEventListener("click", requestPermission); 
-document.getElementById("delete-token-btn").addEventListener("click", delete_Token); 
+document.getElementById("delete-token-btn").addEventListener("click", function(){
+  delete_Token(null);
+}); 
+document.getElementById("request-token-btn").addEventListener("click", resetUI); 
