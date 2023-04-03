@@ -7,7 +7,6 @@ import calendar
 import datetime
 import random
 locale.setlocale(locale.LC_TIME, "de_DE") #for the 24h time format (for datetime)
-from app.config import Config
 from flask import current_app
 from app.data.schedule import ArrivalOrLanding
 import re
@@ -156,7 +155,7 @@ class FlightAwareScraper:
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date)+ ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[4].text).group(), "%Y-%m-%d, %H:%M")
                 unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].span.get("title"), table_cell.find_all('td')[1].text, unix_time, 0))
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 0))
                 
             
             if datetime.date.today() + datetime.timedelta(days=7) == date or counter >= 800:
@@ -294,4 +293,4 @@ class FlightAwareScraper:
                 
                 if datetime.date.today() + datetime.timedelta(days=7):
                     break
-        print(schedule)
+        return(schedule)
