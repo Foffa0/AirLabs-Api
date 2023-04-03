@@ -270,7 +270,8 @@ main {
     margin-top: 2rem;
 }
 
-.airports h2 {
+.airports h2,
+.alerts h2 {
     font-size: 2rem;
     font-weight: 400;
     color: #506690;
@@ -372,7 +373,7 @@ main {
     cursor: pointer;
     padding: 18px;
     width: 100%;
-    border: 2px solid var(--primary-color);
+    border: none;
     border-radius: .5rem;
     text-align: left;
     outline: none;
@@ -397,7 +398,7 @@ main {
 }
 
 .active {
-    border: none !important;
+    border: 2px solid var(--primary-color);
 }
 
 .content {
@@ -423,6 +424,60 @@ main {
     width: auto;
     padding: 1rem;
 }
+
+.notifications {
+    border: 1px solid rgb(255, 196, 0);
+    background-color: #ececec;
+    padding: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    margin-bottom: 2rem;
+}
+
+.notifications h4 {
+    height: 100%;
+    margin: 0rem;
+    font-size: 1rem;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+#delete-token_div,
+#request-token_div,
+#permission_div {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.25rem;
+}
+
+#delete-token-btn,
+#permission-btn,
+#request-token-btn {
+    padding: .75rem 1rem;
+}
+
+#alerts-table {
+    width: 100%;
+}
+
+#alerts-table td, #alerts-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#alerts-table tr:nth-child(even){background-color: #f2f2f2;}
+
+#alerts-table tr:hover {background-color: #ddd;}
+
+#alerts-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
 
 /**
 * login page
@@ -648,5 +703,17 @@ main {
     }
     .container {
         margin-inline: 0rem;
+    }
+
+    #delete-token_div,
+    #request-token_div,
+    #permission_div {
+        flex-flow: row wrap;
+        justify-content: center;
+    }
+    #delete-token_div h4,
+    #request-token_div h4,
+    #permission_div h4 {
+        margin-bottom: 1rem;
     }
 }
