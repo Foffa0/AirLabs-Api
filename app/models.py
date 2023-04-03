@@ -19,6 +19,8 @@ class User(db.Model, UserMixin):
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
     airports = db.relationship('Airport', backref='author', lazy=True)
+    aircrafts = db.relationship('Aircraft', backref='author', lazy=True)
+    devices = db.relationship('Notification', backref='user', lazy=True)
 
     def get_reset_token(self):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -65,9 +67,31 @@ class Aircraft(db.Model):
     name = db.Column(db.String(90), nullable=False)
     icao = db.Column(db.String(4), nullable=False)
     airport_id = db.Column(db.Integer, db.ForeignKey('airport.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f"Aircraft('{self.name}', '{self.icao}')"
+    
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(200), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Device('{self.token}', '{self.user_id}')"
+    
+class Alert(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    flightnumber = db.Column(db.String(40), nullable=True)
+    aircraft_icao = db.Column(db.String(4), nullable=False)
+    aircraft = db.Column(db.String(80), nullable=True)
+    time = db.Column(db.Integer, nullable=False)
+    arrival = db.Column(db.Boolean, nullable=False)
+    airport_icao = db.Column(db.String(4), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Device('{self.flightnumber}', '{self.aircraft}'), '{self.time}'), '{self.arrival}')"
 
 def init_db():
     db.create_all()
