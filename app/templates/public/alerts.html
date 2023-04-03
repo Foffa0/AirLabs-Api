@@ -9,6 +9,63 @@
     </header>
 </div>
 <div class="alert-section container">
+    <div class="notifications">
+        <!-- div to display the generated registration token -->
+        <div id="delete-token_div" style="display: none;">
+            <h4>Unsubscribe and you won't get notifications on this device.</h4>
+            <button id="delete-token-btn" class="new-btn">Unsubscribe</button>
+        </div>
+        <div id="request-token_div" style="display: none;">
+            <h4>Subscribe to receive notifications about your selected aircraft on this device.</h4>
+            <button id="request-token-btn" class="new-btn">Subscribe</button>
+        </div>
+        <!-- div to display the UI to allow the request for permission to
+        notify the user. This is shown if the app has not yet been
+        granted permission to notify. -->
+        <div id="permission_div" style="display: none;">
+            <h4>You need to allow notifications to receive push messages!</h4>
+            <button id="permission-btn" class="new-btn">Request Permission</button>
+        </div>
+        <!-- div to display messages received by this app. -->
+        <div id="messages"></div>
+    </div>
+    <div class="alerts">
+        <h2>Last alerts:</h2>
+        <table id="alerts-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Flightnumber</td>
+                <td>Aircraft</td>
+                <td>Airport</td>
+                <td>Type</td>
+                <td>Time</td>
+            </tr>
+        {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.flightnumber }}</td>
+                <td>{{ alert.aircraft }}</td>
+                <td>{{ alert.airport_icao }}</td>
+                <td>
+                    {% if alert.arrival %}
+                        arrival
+                    {% else %}
+                        departure
+                    {% endif %}
+                </td>
+                <td class="timestamp">{{ alert.time }}</td>
+            </tr>
+        {% endfor %}
+        {% if alerts %}
+            <tr style="width: 100%;">
+                <td>Currently no alerts</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+        
+    </div>
     <div class="airports">
         <h2>My Airports</h2>
         <div class="search">
@@ -60,7 +117,7 @@
                         <button type="button" class="collapsible">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
                         <div class="content" style="max-height: 100%;">
                         {% else %}
-                        <button type="button" class="collapsible active">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
+                        <button type="button" class="collapsible">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
                         <div class="content">
                         {% endif %}
                         
