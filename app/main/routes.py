@@ -3,15 +3,16 @@ from flask_login import current_user
 from flask_login import login_required
 #from app.models import Recipe
 from app import db
-from app.models import User, Aircraft, Airport
+from app.models import Alert, Aircraft, Airport
+from sqlalchemy import desc
 import requests
 from requests.exceptions import HTTPError
 from app.main.forms import AirportForm, AircraftForm
 from app.data.airport import Airport_info
 from app.data.aircraft import Aircraft_Info
 import json
-from app.tasks.scraper import FlightAwareScraper
 from app.decorators import check_confirmed
+from app.tasks.task import startSchedule
 
 
 main = Blueprint('main', __name__)
@@ -21,7 +22,7 @@ savedAirports = []
 @main.route("/")
 @main.route("/index")
 def index():
-
+    startSchedule()
     return render_template("public/index.html")
 
 @main.route("/alerts", methods=['GET', 'POST'])
@@ -32,7 +33,9 @@ def alerts():
     aircraftForm = AircraftForm()
     airports = Airport.query.filter_by(user_id=current_user.id)
     aircrafts = Aircraft.query.all()
-    return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airports=airports, aircrafts=aircrafts)
+    alerts = Alert.query.filter_by(user_id=current_user.id).all()
+    alerts.sort(key=lambda r: r.time)
+    return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airports=airports, aircrafts=aircrafts, alerts=alerts)
 
 @main.route("/search-airport", methods=['GET', 'POST'])
 @login_required
@@ -58,7 +61,9 @@ def searchAirport():
             for airport in response["response"]["airports"]:
                 airportResults.append(Airport_info(airport))
         airports = Airport.query.filter_by(user_id=current_user.id)
-        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, airports=airports)
+        alerts = Alert.query.filter_by(user_id=current_user.id).all()
+        alerts.sort(key=lambda r: r.time)
+        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, airports=airports, alerts=alerts)
 
 
 @main.route("/search-aircraft", methods=['GET', 'POST'])
@@ -75,22 +80,32 @@ def searchAircraft():
         with open("app/data/aircrafts.json", "r", encoding="utf8") as read_file:
             data = json.load(read_file)
             for x, aircraft in enumerate(data):
-                new_aircraft = None
-                if aircraft['icaoCode']:
-                    if query in aircraft['icaoCode']:
+                # check if engine count or aircraft name is given
+                if aircraftForm.search_option.data == 1:
+                    new_aircraft = None
+                    if aircraft['icaoCode']:
+                        if query in aircraft['icaoCode']:
+                            new_aircraft = Aircraft_Info(data[x])
+                    if query in aircraft['name']:
                         new_aircraft = Aircraft_Info(data[x])
-                if query in aircraft['name']:
-                    new_aircraft = Aircraft_Info(data[x])
-                elif query in aircraft['manufacturer']:
-                    new_aircraft = Aircraft_Info(data[x])
+                    elif query in aircraft['manufacturer']:
+                        new_aircraft = Aircraft_Info(data[x])
 
-                if new_aircraft:
-                    if not any(x.icao_code == new_aircraft.icao_code for x in aircraftResults):
-                        aircraftResults.append(Aircraft_Info(data[x]))
+                    if new_aircraft:
+                        if not any(y.icao_code == new_aircraft.icao_code for y in aircraftResults):
+                            aircraftResults.append(Aircraft_Info(data[x]))
+                elif aircraftForm.search_option.data == 2:
+                    if aircraft['engineCount'] == int(query):
+                        if aircraft['icaoCode'] != None:
+                            if not any(y.icao_code == aircraft['icaoCode'] for y in aircraftResults):
+                                aircraftResults.append(Aircraft_Info(data[x]))
+
         airports = Airport.query.filter_by(user_id=current_user.id)
         airport_icao = aircraftForm.airport_icao.data
         aircrafts = Aircraft.query.all()
-        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, aircraftResults=aircraftResults, airports=airports, searchAirportIcao=airport_icao, aircrafts=aircrafts)
+        alerts = Alert.query.filter_by(user_id=current_user.id).all()
+        alerts.sort(key=lambda r: r.time)
+        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, aircraftResults=aircraftResults, airports=airports, searchAirportIcao=airport_icao, aircrafts=aircrafts, alerts=alerts)
     return redirect(url_for('main.alerts'))
 
 @main.route("/save-airport/<string:icao_code>", methods=['GET', 'POST'])
@@ -114,8 +129,6 @@ def saveAirport(icao_code):
         airport = Airport(name=response["name"], icao=response["icao_code"], iata=response["iata_code"], user_id=current_user.id)
         db.session.add(airport)
         db.session.commit()
-    #scraper = FlightAwareScraper()
-    #scraper.getAirportData(response["response"]["airports"][0]['icao_code'])
     return redirect(url_for('main.alerts'))
 
 @main.route("/save-aircraft/<string:icao_code>/<int:airport>", methods=['GET', 'POST'])
@@ -133,7 +146,7 @@ def saveAircraft(icao_code, airport):
             if userAircraft.icao == icao_code.upper():
                 flash('Aircraft already on the watchlist!', 'warning')
                 return redirect(url_for('main.alerts'))
-        db.session.add(Aircraft(name=aircraft['manufacturer'] + " " + aircraft['name'], icao=aircraft['icaoCode'], airport_id=airport))
+        db.session.add(Aircraft(name=aircraft['manufacturer'] + " " + aircraft['name'], icao=aircraft['icaoCode'], airport_id=airport, user_id=current_user.id))
         db.session.commit()
     return redirect(url_for('main.alerts'))
 
