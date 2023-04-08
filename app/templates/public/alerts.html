@@ -40,10 +40,10 @@
                 <td>Time</td>
             </tr>
         {% for alert in alerts %}
-            <tr>
+            <tr onclick="window.open('https://de.flightaware.com/live/flight/{{alert.flightnumber}}')">
                 <td>{{ alert.flightnumber }}</td>
                 <td>{{ alert.aircraft }}</td>
-                <td>{{ alert.airport_icao }}</td>
+                <td class="tooltip-hover">{{ alert.airport_icao }} <span class="tooltiptext">{{ alert.airport_name }}</span></td>
                 <td>
                     {% if alert.arrival %}
                         arrival
@@ -54,7 +54,7 @@
                 <td class="timestamp">{{ alert.time }}</td>
             </tr>
         {% endfor %}
-        {% if alerts %}
+        {% if not alerts[0] %}
             <tr style="width: 100%;">
                 <td>Currently no alerts</td>
                 <td></td>
@@ -122,7 +122,7 @@
                         {% endif %}
                         
                             <div class="search">
-                                <form id="aircraft-search-form" method="POST" action="{{ url_for('main.searchAircraft') }}">
+                                <form id="aircraft-search-form" name="aircraft_form" method="POST" action="{{ url_for('main.searchAircraft') }}">
                                     {{ aircraftForm.hidden_tag() }}
                                     {{ aircraftForm.airport_icao(value=airport.icao, class_="invisible") }}
                                     <div class="searchbar">
@@ -138,6 +138,19 @@
                                         {% endif %}
                                         {{ aircraftForm.submit(class="search-btn", value="", style="z-index: 10;") }}
                                         <button type="button" class="search-btn"><i class="fa fa-search"></i></button>
+                                    </div>
+                                    <div class="options">
+                                        <p>Search options:</p>
+                                        {% if aircraftForm.search_option.errors %}
+                                            {{ aircraftForm.search_option(class="form-control form-control-lg is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in aircraftForm.search_option.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ aircraftForm.search_option(class="search-option-radio") }}
+                                        {% endif %}
                                     </div>
                                 </form>
                                 {% if aircraftResults %}
