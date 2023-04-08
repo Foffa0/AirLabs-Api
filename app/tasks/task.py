@@ -79,7 +79,7 @@ def _build_flight_alert_message(token, schedule, airport):
             'image': 'https://www.gstatic.com/devrel-devsite/prod/vc7c98be6f4d139e237c3cdaad6a00bb295b070a83e505cb2fa4435daae3d0901/firebase/images/touchicon-180.png'
           },
           'fcm_options': {
-            'link': f'https://de.flightaware.com/live/airport/{airport}'
+            'link': f'https://flight-alert.duckdns.org/alerts'
           }
         },
         "android":{
@@ -132,29 +132,43 @@ def run_continuously(app, interval=100):
 def background_job(app):
   # send push messages to the users' devices
   all_airports = Airport.query.all()
-  sorted_airports = []
-  for airport in all_airports:
-    if not airport.icao in sorted_airports:
-      sorted_airports.append(airport.icao)
   aircrafts = Aircraft.query.all()
   scraper = FlightAwareScraper()
+  # save all already scraped airports in a list, so we can check for airprot duplicates 
+  scraped_airports = []
+  
   from app import db
-  for airport in sorted_airports:
-    airport_schedule = scraper.getAirportData(airport)
+
+  # remove all alerts and readd them
+  alerts = Alert.query.all()
+  for alert in alerts:
+    db.session.delete(alert)
+  db.session.commit()
+
+  for airport in all_airports:
+    # skip if the airport data was already collected
+    if airport.icao in scraped_airports:
+      continue
+    else:
+      scraped_airports.append(airport.icao)
+    
+    airport_schedule = scraper.getAirportData(airport.icao)
+
     for x in airport_schedule:
       for aircraft in aircrafts:
-        if aircraft.icao == x.aircraft_icao:
+        if str(aircraft.icao) == str(x.aircraft_icao):
           # add alert to user's alert page
-          if x.type == 1:
+          if str(x.type) == "1":
             arrival = False
           else:
             arrival = True
-          db.session.add(Alert(flightnumber=x.flightnumber, aircraft_icao=x.aircraft_icao, aircraft=x.aircraft, time=int(x.time), arrival=arrival, airport_icao=airport, user_id=aircraft.user_id))
+          db.session.add(Alert(flightnumber=x.flightnumber, aircraft_icao=x.aircraft_icao, aircraft=x.aircraft, time=int(x.time), arrival=arrival, airport_icao=airport.icao, airport_name=airport.name, user_id=aircraft.user_id))
           db.session.commit()
-
+          # send push messages with fcm
           devices = Notification.query.filter_by(user_id=aircraft.user_id)
           for device in devices:
             _send_fcm_message(_build_flight_alert_message(device.token, x, airport), device.token, app)
+          continue
   
   # delete all unconfirmed users
   users = User.query.all()
