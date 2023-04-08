@@ -30,14 +30,15 @@
 // and you should use data messages for custom notifications.
 // For more info see: 
 // https://firebase.google.com/docs/cloud-messaging/concept-options
-messaging.onBackgroundMessage(function(payload) {
+/*messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  const notificationTitle = "From Service Worker:";
+  const notificationTitle = "payload.notification.title";
   const notificationOptions = {
     body: payload.notification.body,
+    image: payload.notification.image,
   };
 
   self.registration.showNotification(notificationTitle,
     notificationOptions);
-});
+});*/
