@@ -1,0 +1,16 @@
+
+{% extends "errors/templates/error_template.html" %}
+{% block content %}
+    <div class="row text-center my-5">
+        <div class="col">
+            <h1 class="error-code">403</h1>
+            <h2>You don't have permission to do that!</h2>
+            <p>Please check your account and try again.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-grid gap-2 col-6 mx-auto">
+            <button class="btn btn-primary w-25 mx-auto" type="button" onclick="window.location.href='{{ url_for('main.index') }}';">Back</button>
+        </div>
+    </div>
+{% endblock content %}
