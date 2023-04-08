@@ -234,8 +234,6 @@ main {
     width: 100%;
     height: 25rem;
     z-index: -1;
-    background-repeat: no-repeat;
-    background-size: cover;
     background:
     /* top, transparent black, faked with gradient */ 
     linear-gradient(
@@ -246,6 +244,8 @@ main {
     url(https://c.ekstatic.net/ecl/airport/airfield/terminal-t3-outdoor-view-b-w1920x480.jpg?h=V3MTi53cQxb1tvDU7BPI1A);
     background-position: center;
     overflow: hidden;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .header-alerts {
@@ -278,6 +278,36 @@ main {
     margin-bottom: 2rem;
 }
 
+.alerts {
+    padding-bottom: 2rem;
+    overflow-x: auto;
+}
+
+.tooltip-hover {
+    position: relative;
+}
+  
+.tooltip-hover .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+/* Position the tooltip */
+    position: absolute;
+    width: 120px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -50%;
+}
+
+.tooltip-hover:hover .tooltiptext {
+    visibility: visible;
+}
+
 #airport-search-form {
     position: relative;
     display: flex;
@@ -288,8 +318,12 @@ main {
 #aircraft-search-form {
     position: relative;
     display: flex;
+    flex-flow: column nowrap;
     justify-content: space-around;
     margin-block: 2rem;
+    background-color: hsla(226, 81%, 56%, 0.123);
+    border-radius: .5rem;
+    padding: .1rem;
 }
 
 .searchbar {
@@ -309,6 +343,91 @@ main {
     color: var(--primary-color);
     cursor: pointer;
     outline: 0;
+}
+
+.search .options {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.search .options p {
+    margin: 1rem;
+}
+
+.search-option-radio {
+    display: flex;
+    flex-flow: row;
+    list-style: none;
+    padding: 0rem;
+}
+
+#search_option label {
+    position: relative;
+    padding-left: 2rem;
+}
+
+
+/* Hide the browser's default checkbox */
+#search_option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+  
+  /* Create a custom checkbox */
+#search_option label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 50%;
+    transition: all 250ms ease-in-out;
+}
+  
+  /* On mouse-over, add a grey background color */
+#search_option li:hover input ~  label::before {
+    background-color: #ccc;
+}
+
+#search_option li:hover input:checked ~  label::before {
+    background-color: var(--primary-color);
+}
+  
+  /* When the checkbox is checked, add a blue background */
+#search_option input:checked ~ label::before {
+    background-color: var(--primary-color);
+}
+  
+  /* Create the checkmark/indicator (hidden when not checked) */
+#search_option label::after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+  
+  /* Show the checkmark when checked */
+#search_option input:checked ~ label::after {
+    display: block;
+}
+  
+  /* Style the checkmark/indicator */
+#search_option  label::after{
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+
+.search-option-radio li{
+ margin-inline: 1rem;
 }
 
 #airport-search {
@@ -457,20 +576,24 @@ main {
     padding: .75rem 1rem;
 }
 
-#alerts-table {
+#alerts-table,
+.admin-table {
     width: 100%;
 }
 
-#alerts-table td, #alerts-table th {
+#alerts-table td, #alerts-table th,
+.admin-table td, .admin-table th {
   border: 1px solid #ddd;
   padding: 8px;
+  white-space: nowrap;
 }
 
 #alerts-table tr:nth-child(even){background-color: #f2f2f2;}
 
 #alerts-table tr:hover {background-color: #ddd;}
 
-#alerts-table th {
+#alerts-table th,
+.admin-table th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
@@ -605,6 +728,94 @@ main {
 .invisible {
     display: none !important;
 }
+/* 
+* Account delete
+*/
+.delete-account {
+    margin-top: 2rem;
+    display: inline-block;
+    width: 100%;
+}
+#account-delete-btn {
+    width: auto;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    padding-top: 33dvh;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+} 
+
+/* Modal Header */
+.modal-header, 
+.modal-header h2 {
+    padding: .5rem 1rem;
+    margin-bottom: 0rem !important;
+    background-color: #ff543d;
+    color: white;
+}
+
+/* Modal Body */
+.modal-body {padding: 2px 16px;}
+
+/* Modal Footer */
+.modal-footer {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 2px 16px;
+}
+#cancel-account-delete-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+#confirm-account-delete-btn {
+    margin-top: 0rem;
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Add Animation */
+@keyframes animatetop {
+from {top: -300px; opacity: 0}
+to {top: 0; opacity: 1}
+} 
 
 @media (max-width: 75em){
     .header-container,
