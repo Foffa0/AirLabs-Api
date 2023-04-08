@@ -116,5 +116,26 @@
             <button id="cancel-btn-pw" type="button" class="account-btn invisible" onclick="editPassword()">Cancel</button>
         </form>
     </div>
+    
+    <div class="delete-account">
+        <hr>
+        <button id="account-delete-btn" class="new-btn delete-btn">Delete account</button>
+        <div id="delete-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Are you shure?</h2>
+                    <span class="close close-modal">&times;</span> 
+                </div>
+                <div class="modal-body">
+                    <p>You are going to delete your account.</p>
+                    <p>All your data will be lost!</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-account-delete-btn" class="new-btn close-modal">Cancel</button>
+                    <button id="confirm-account-delete-btn" class="new-btn delete-btn" onclick="window.location.href='/account/delete/{{ user.id }}'">Delete account</button>
+                </div>
+              </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
