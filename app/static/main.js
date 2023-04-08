@@ -45,24 +45,28 @@ function resetUI() {
   //showToken('loading...');
   // Get registration token. Initially this makes a network call, once retrieved
   // subsequent calls to getToken will return from cache.
-  getToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI', serviceWorkerRegistration: sw_registration,}).then((currentToken) => {
-    if (currentToken) {
-      sendTokenToServer(currentToken);
-      updateUIForPushEnabled();
-      setLastToken(currentToken);
-    } else {
-      // Show permission request.
-      console.log('No registration token available. Request permission to generate one.');
-      // Show permission UI.
-      updateUIForPushPermissionRequired();
+  if (isTokenSentToServer()) {
+    getToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI', serviceWorkerRegistration: sw_registration,}).then((currentToken) => {
+      if (currentToken) {
+        sendTokenToServer(currentToken);
+        updateUIForPushEnabled();
+        setLastToken(currentToken);
+      } else {
+        // Show permission request.
+        console.log('No registration token available. Request permission to generate one.');
+        // Show permission UI.
+        updateUIForPushPermissionRequired();
+        setTokenSentToServer(false);
+      }
+    }).catch((err) => {
+      console.log('An error occurred while retrieving token. ', err);
+      //showToken('Error retrieving registration token. ', err);
       setTokenSentToServer(false);
-    }
-  }).catch((err) => {
-    console.log('An error occurred while retrieving token. ', err);
-    //showToken('Error retrieving registration token. ', err);
-    setTokenSentToServer(false);
-    updateUIForPushPermissionRequired();
-  });
+      updateUIForPushPermissionRequired();
+    });
+  } else {
+    updateUIForPushDisabled();
+  }
 };
 
 /*
@@ -179,7 +183,7 @@ function delete_Token(token=null) {
   };
 };
 
-// Add a message to the messages element.
+//TODO Add a message to the messages element.
 function appendMessage(payload) {
   const messagesElement = document.querySelector('#messages');
   const dataHeaderElement = document.createElement('h5');
