@@ -17,7 +17,7 @@
 <body>
     <nav>
         <div class="container">
-            <a class="navbar-brand" href="">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <img src="{{url_for('static', filename='img/logo.png') }}" alt="logo">
             </a>
             <div id="topnav" class="nav-links">
@@ -25,6 +25,9 @@
                 <a href="{{ url_for('main.alerts') }}">Alerts</a>
                 {% if current_user.confirmed and current_user.is_authenticated %}
                 <a href="{{ url_for('users.account') }}">Profile</a>
+                {% if current_user.admin %}
+                <a href="{{ url_for('users.admin') }}">Admin</a>
+                {% endif %}
                 <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
                 {% elif current_user.is_authenticated %}
                 <a href="{{ url_for('users.unconfirmed') }}">Confirm</a>
@@ -40,6 +43,9 @@
                 <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
                 <a href="{{ url_for('main.index') }}">Home</a>
                 <a href="{{ url_for('main.alerts') }}">Alerts</a>
+                {% if current_user.admin %}
+                <a href="{{ url_for('users.admin') }}">Admin</a>
+                {% endif %}
                 {% if current_user.confirmed and current_user.is_authenticated %}
                 <a href="{{ url_for('users.account') }}">Profile</a>
                 <a class="logout-link" href="{{ url_for('users.logout') }}">Logout</a>
@@ -69,6 +75,7 @@
         <div id="overlay"></div>
     {% block content %}{% endblock content %}
     </main>
-    <script src="../../../static/script.js"></script>
+    <script src="{{ url_for('static',filename='script.js') }}" defer></script>
+    <script type="module" src="{{ url_for('static',filename='main.js') }}"></script>
 </body>
 </html>

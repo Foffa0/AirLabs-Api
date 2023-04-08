@@ -1,0 +1,166 @@
+{% extends "admin/templates/admin_template.html" %}
+{% block users %}
+<div class="admin-list">
+    {% if users %}
+        <table class="admin-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Id</td>
+                <td>Username</td>
+                <td>Email</td>
+                <td>Admin</td>
+                <td>Confirmed</td>
+                <td>Registered on</td>
+                <td>Confirmed on</td>
+                <td>Options</td>
+            </tr>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.firstName }} {{ user.lastName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.admin }}</td>
+                <td>{{ user.confirmed }}</td>
+                <td>{{ user.registered_on }}</td>
+                <td>{{ user.confirmed_on }}</td>
+                <td>
+                    {% if user.admin %}
+                    <button class="new-btn" onclick="window.location.href='/admin/toggle/{{user.id}}'">Remove Admin</button>
+                    {% else %}
+                    <button class="new-btn" onclick="window.location.href='/admin/toggle/{{user.id}}'">Make Admin</button>
+                    {% endif %}
+                    
+                    <button class="new-btn delete-btn" onclick="window.location.href='/account/delete/{{user.id}}'">Delete</button>
+                </td>
+            </tr>
+        {% endfor %}
+        {% if not users[0] %}
+            <tr style="width: 100%;">
+                <td>Currently no users</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+    {% endif %}
+    {% if airports %}
+        <table class="admin-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Id</td>
+                <td>Name</td>
+                <td>Icao</td>
+                <td>Iata</td>
+                <td>User id</td>
+            </tr>
+        {% for airport in airports %}
+            <tr>
+                <td>{{ airport.id }}</td>
+                <td>{{ airport.name }}</td>
+                <td>{{ airport.icao }}</td>
+                <td>{{ airport.iata }}</td>
+                <td>{{ airport.user_id }}</td>
+            </tr>
+        {% endfor %}
+        {% if not airports[0] %}
+            <tr style="width: 100%;">
+                <td>Currently no sirports</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+    {% endif %}
+    {% if aircrafts %}
+        <table class="admin-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Id</td>
+                <td>Name</td>
+                <td>Icao</td>
+                <td>Airport id</td>
+                <td>User id</td>
+            </tr>
+        {% for aircraft in aircrafts %}
+            <tr>
+                <td>{{ aircraft.id }}</td>
+                <td>{{ aircraft.name }}</td>
+                <td>{{ aircraft.icao }}</td>
+                <td>{{ aircraft.airport_id }}</td>
+                <td>{{ aircraft.user_id }}</td>
+            </tr>
+        {% endfor %}
+        {% if not aircrafts[0] %}
+            <tr style="width: 100%;">
+                <td>Currently no aircrafts</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+    {% endif %}
+    {% if devices %}
+        <table class="admin-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Id</td>
+                <td>token</td>
+                <td>User id</td>
+            </tr>
+        {% for device in devices %}
+            <tr>
+                <td>{{ device.id }}</td>
+                <td>{{ device.token }}</td>
+                <td>{{ device.user_id }}</td>
+            </tr>
+        {% endfor %}
+        {% if not devices[0] %}
+            <tr style="width: 100%;">
+                <td>Currently no devices</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+    {% endif %}
+    {% if alerts %}
+        <table class="admin-table">
+            <tr style="background-color:hsl(226, 81%, 56%);;color:white;">
+                <td>Id</td>
+                <td>Flightnumber</td>
+                <td>Aircraft icao</td>
+                <td>Aircraft</td>
+                <td>Time</td>
+                <td>Arrival</td>
+                <td>Airport icao</td>
+                <td>User id</td>
+            </tr>
+        {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.id }}</td>
+                <td>{{ alert.flightnumber }}</td>
+                <td>{{ alert.aircraft_icao }}</td>
+                <td>{{ alert.aircraft }}</td>
+                <td class="timestamp">{{ alert.time }}</td>
+                <td>{{ alert.arrival }}</td>
+                <td>{{ alert.airport_icao }}</td>
+                <td>{{ alert.user_id }}</td>
+            </tr>
+        {% endfor %}
+        {% if not alerts[0] %}
+            <tr style="width: 100%;">
+                <td>Currently no alerts</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        </table>
+    {% endif %}
+  </div>
+{% endblock users %}

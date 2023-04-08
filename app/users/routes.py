@@ -1,9 +1,8 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app
+from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app, abort
 from flask_login import login_user, current_user, logout_user, login_required
 #from app import db, bcrypt
-from app.models import User
+from app.models import User, Aircraft, Airport, Notification, Alert
 from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, UpdatePasswordForm, RequestResetForm, ResetPasswordForm
-from app.config import Config
 from app import db, bcrypt
 import datetime
 from app.users.utils import send__email
@@ -23,7 +22,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(firstName=form.firstName.data, lastName=form.lastName.data, email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.date.today())
+        user = User(firstName=form.firstName.data, lastName=form.lastName.data, email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.datetime.now())
         db.session.add(user)
         db.session.commit()
         send__email(user, 0)
@@ -147,3 +146,129 @@ def reset_password(token):
         flash('Your password has been updated! You can log in now.', 'success')
         return redirect(url_for('users.login'))
     return render_template('public/reset_password.html', title='Reset FlightAlert password', form=form)
+
+
+@users.route("/account/delete/<int:id>", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
+def account_delete(id):
+    if current_user.id != id and not current_user.admin:
+        abort(403)
+    
+    user = User.query.get(id)
+    if user.admin:
+        abort(403)
+    
+    aircrafts = Aircraft.query.filter_by(user_id=user.id)
+    for aircraft in aircrafts:
+        db.session.delete(aircraft)
+    db.session.commit()
+    airports = Airport.query.filter_by(user_id=user.id)
+    for airport in airports:
+        db.session.delete(airport)
+    db.session.commit()
+    notifications = Notification.query.filter_by(user_id=user.id)
+    for notification in notifications:
+        db.session.delete(notification)
+    db.session.commit()
+    alerts = Alert.query.filter_by(user_id=user.id)
+    for alert in alerts:
+        db.session.delete(alert)
+    
+    db.session.delete(user)
+    if current_user.id == id:
+        logout_user()
+    db.session.commit()
+    flash('Account succesfully deleted.', 'success')
+    return redirect(url_for('main.index'))
+
+#
+# Admin pages
+#
+
+@users.route("/admin/toggle/<int:id>", methods=['GET', 'POST'])
+@login_required
+@check_confirmed
+def admin_state(id):
+    if current_user.id == id or not current_user.admin:
+        abort(403)
+    
+    user = User.query.get(id)
+    
+    if user.email == current_app.config['ADMIN_EMAIL']:
+        flash('You cannot remove admin state from the admin!', 'warning')
+        return redirect(url_for('users.user_administration'))
+    
+    if user.admin:
+        user.admin = False
+    else:
+        user.admin = True
+
+    db.session.commit()
+
+    flash('Account succesfully updated.', 'success')
+    return redirect(url_for('users.admin'))
+
+@users.route("/admin")
+@login_required
+@check_confirmed
+def admin():
+    if current_user.admin:
+        users = User.query.all()
+        airports = Airport.query.all()
+        aircrafts = Aircraft.query.all()
+        devices = Notification.query.all()
+        alerts = Alert.query.all()
+        return render_template('admin/admin.html', title='Admin FlightAlert', userCount=len(users), airportCount=len(airports), aircraftCount=len(aircrafts), devicesCount=len(devices), alertCount=len(alerts))
+    else:
+        abort(403)
+
+@users.route("/admin/users")
+@login_required
+@check_confirmed
+def admin_users():
+    if current_user.admin:
+        users = User.query.all()
+        return render_template('admin/admin_details.html', title='Admin FlightAlert', users=users, airports=None, aircrafts=None, devices=None, alerts=None)
+    else:
+        abort(403)
+
+@users.route("/admin/airports")
+@login_required
+@check_confirmed
+def admin_airports():
+    if current_user.admin:
+        airports = Airport.query.all()
+        return render_template('admin/admin_details.html', title='Admin FlightAlert', airports=airports, users=None, aircrafts=None, devices=None, alerts=None)
+    else:
+        abort(403)
+
+@users.route("/admin/aircrafts")
+@login_required
+@check_confirmed
+def admin_aircrafts():
+    if current_user.admin:
+        aircrafts = Aircraft.query.all()
+        return render_template('admin/admin_details.html', title='Admin FlightAlert', aircrafts=aircrafts, airports=None, users=None, devices=None, alerts=None)
+    else:
+        abort(403)
+
+@users.route("/admin/devices")
+@login_required
+@check_confirmed
+def admin_devices():
+    if current_user.admin:
+        devices = Notification.query.all()
+        return render_template('admin/admin_details.html', title='Admin FlightAlert', devices=devices, airports=None, aircrafts=None, users=None, alerts=None)
+    else:
+        abort(403)
+
+@users.route("/admin/alerts")
+@login_required
+@check_confirmed
+def admin_alerts():
+    if current_user.admin:
+        alerts = Alert.query.all()
+        return render_template('admin/admin_details.html', title='Admin FlightAlert', alerts=alerts, airports=None, aircrafts=None, devices=None, users=None)
+    else:
+        abort(403)

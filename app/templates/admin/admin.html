@@ -1,0 +1,40 @@
+{% extends "admin/templates/admin_template.html" %}
+{% block users %}
+<div class="admin-dashboard">
+    <div class="dashboard-entry" onclick="window.location.href='{{ url_for('users.admin_users') }}'">
+        <i class="fa-solid fa-user icon"></i>
+        <div class="count">
+            <p>{{ userCount }}</p>
+            <p>Users</p>
+        </div>
+    </div>
+    <div class="dashboard-entry" onclick="window.location.href='{{ url_for('users.admin_airports') }}'">
+        <i class="fa-solid fa-road"></i>
+        <div class="count">
+            <p>{{ airportCount }}</p>
+            <p>Airports</p>
+        </div>
+    </div>
+    <div class="dashboard-entry" onclick="window.location.href='{{ url_for('users.admin_aircrafts') }}'">
+        <i class="fa-solid fa-plane"></i>
+        <div class="count">
+            <p>{{ aircraftCount }}</p>
+            <p>Aircrafts</p>
+        </div>
+    </div>
+    <div class="dashboard-entry" onclick="window.location.href='{{ url_for('users.admin_devices') }}'">
+        <i class="fa-solid fa-tablet"></i>
+        <div class="count">
+            <p>{{ devicesCount }}</p>
+            <p>Devices</p>
+        </div>
+    </div>
+    <div class="dashboard-entry" onclick="window.location.href='{{ url_for('users.admin_alerts') }}'">
+        <i class="fa-solid fa-bell"></i>
+        <div class="count">
+            <p>{{ alertCount }}</p>
+            <p>Alerts</p>
+        </div>
+    </div>
+  </div>
+{% endblock users %}
