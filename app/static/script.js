@@ -57,11 +57,58 @@ function editPassword() {
 
 var timestamps = document.getElementsByClassName("timestamp");
 var x;
+const today = new Date();
+
 for (x = 0; x < timestamps.length; x++) {
-  console.log("fff");
   var unixTimestamp = timestamps[x].textContent;
   var milliseconds = unixTimestamp * 1000;
   var dateObject = new Date(milliseconds);
-  const options = { weekday: 'short', month: 'short', day: 'numeric', hour: "numeric", minute: "numeric" };
-  timestamps[x].textContent = dateObject.toLocaleDateString('en-US', options);
+
+  if (dateObject.getDate() == today.getDate()) {
+    timestamps[x].textContent = "Today, " + dateObject.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+  } else if (dateObject.getDate() == (today.getDate() + 1)) {
+    timestamps[x].textContent = "Tomorrow, " + dateObject.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+  } else {
+    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: "numeric", minute: "numeric" };
+    timestamps[x].textContent = dateObject.toLocaleDateString('en-GB', options);
+  }
+};
+
+var modal = document.getElementById("delete-modal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("account-delete-btn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close-modal");
+
+if (btn) {
+  btn.onclick = function() {
+    modal.style.display = "block";
+  };
+}
+
+for (let index = 0; index < span.length; index++) {
+  span[index].onclick = function() {
+    modal.style.display = "none";
+  }
+};
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
+
+var aircraftSearch = document.getElementById("aircraft-search");
+var radios = document.forms["aircraft_form"].elements["search_option"];
+
+for(var i = 0; i < radios.length; i++) {
+  radios[i].onclick = function() {
+    if (this.value == 1) {
+      aircraftSearch.type = 'text'
+    } else {
+      aircraftSearch.type = 'number'
+    }
+  }
 };
