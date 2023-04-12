@@ -8,7 +8,17 @@
         <title>{{ title }}</title>
     {% else %}
         <title>Flight Alert</title>
-    {% endif %}
+    {% endif %}    
+
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='/site.webmanifest') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='img/safari-pinned-tab.svg') }}" color="#0068ff">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='/browserconfig.xml') }}">
+    <meta name="theme-color" content="#0068ff">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous"></head>
@@ -77,5 +87,12 @@
     </main>
     <script src="{{ url_for('static',filename='script.js') }}" defer></script>
     <script type="module" src="{{ url_for('static',filename='main.js') }}"></script>
+    {% if searchAirportIcao %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.location.hash = '#{{ searchAirportIcao }}';
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
