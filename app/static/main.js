@@ -69,12 +69,26 @@ function resetUI() {
   }
 };
 
-/*
-function showToken(currentToken) {
-  // Show token in console and UI.
-  const tokenElement = document.querySelector('#token');
-  tokenElement.textContent = currentToken;
-};*/
+function subscribeDevice() {
+  getToken(messaging, { vapidKey: 'BBxngHeJQtHsT3PFeRtWbE55QA_3L_pv-HsCoBMF9bPZkCNHf9E9zCcUc742iVzbAIpf7qgYKc-4lu5Xhv7lEfI', serviceWorkerRegistration: sw_registration,}).then((currentToken) => {
+    if (currentToken) {
+      sendTokenToServer(currentToken);
+      updateUIForPushEnabled();
+      setLastToken(currentToken);
+    } else {
+      // Show permission request.
+      console.log('No registration token available. Request permission to generate one.');
+      // Show permission UI.
+      updateUIForPushPermissionRequired();
+      setTokenSentToServer(false);
+    }
+  }).catch((err) => {
+    console.log('An error occurred while retrieving token. ', err);
+    //showToken('Error retrieving registration token. ', err);
+    setTokenSentToServer(false);
+    updateUIForPushPermissionRequired();
+  });
+}
 
 // Send the registration token your application server, so that it can:
 // - send messages back to this app
@@ -183,14 +197,14 @@ function delete_Token(token=null) {
   };
 };
 
-//TODO Add a message to the messages element.
+// Add a message to the messages element.
 function appendMessage(payload) {
   const messagesElement = document.querySelector('#messages');
   const dataHeaderElement = document.createElement('h5');
   const dataElement = document.createElement('pre');
   dataElement.style = 'overflow-x:hidden;';
-  dataHeaderElement.textContent = 'Received message:';
-  dataElement.textContent = JSON.stringify(payload, null, 2);
+  dataHeaderElement.textContent = 'New Alert!';
+  dataElement.textContent = payload.notification.body;
   messagesElement.appendChild(dataHeaderElement);
   messagesElement.appendChild(dataElement);
 };
@@ -251,4 +265,4 @@ document.getElementById("permission-btn").addEventListener("click", requestPermi
 document.getElementById("delete-token-btn").addEventListener("click", function(){
   delete_Token(null);
 }); 
-document.getElementById("request-token-btn").addEventListener("click", resetUI); 
+document.getElementById("request-token-btn").addEventListener("click", subscribeDevice); 
