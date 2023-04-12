@@ -1,16 +1,20 @@
 import os
 
 class Config:
-    SECRET_KEY = '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'#os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
 
     AIR_LABS_API_KEY = os.environ.get('AIR_LABS_API_KEY')
+
+    FLIGHTAWARE_USERNAME = os.environ.get('FLIGHTAWARE_USERNAME')
+    FLIGHTAWARE_PASSWORD = os.environ.get('FLIGHTAWARE_PASSWORD')
+
+    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    
+    OAUTH2_TOKEN = os.environ.get('OAUTH2_TOKEN')
+
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
