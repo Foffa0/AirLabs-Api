@@ -4,7 +4,6 @@ from flask_login import login_required
 #from app.models import Recipe
 from app import db
 from app.models import Alert, Aircraft, Airport
-from sqlalchemy import desc
 import requests
 from requests.exceptions import HTTPError
 from app.main.forms import AirportForm, AircraftForm
@@ -12,17 +11,14 @@ from app.data.airport import Airport_info
 from app.data.aircraft import Aircraft_Info
 import json
 from app.decorators import check_confirmed
-from app.tasks.task import startSchedule
 
 
 main = Blueprint('main', __name__)
 
-savedAirports = []
 
 @main.route("/")
 @main.route("/index")
 def index():
-    startSchedule()
     return render_template("public/index.html")
 
 @main.route("/alerts", methods=['GET', 'POST'])
@@ -47,7 +43,7 @@ def searchAirport():
     if form.validate_on_submit():
         query = form.query.data
         try:
-            response = requests.get(f'https://airlabs.co/api/v9/suggest?q={query}&api_key={current_app.config["AIR_LABS_API_KEY"]}')
+            response = requests.get(f'https://airlabs.co/api/v9/suggest?q={str(query).upper()}&api_key={current_app.config["AIR_LABS_API_KEY"]}&lang=DE')
 
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
@@ -74,7 +70,7 @@ def searchAircraft():
     aircraftForm = AircraftForm()
     
     if aircraftForm.validate_on_submit():
-        query = aircraftForm.query.data
+        query = str(aircraftForm.query.data).upper()
         aircraftResults = []
 
         with open("app/data/aircrafts.json", "r", encoding="utf8") as read_file:
@@ -118,7 +114,7 @@ def saveAirport(icao_code):
             flash('Airport already on the watchlist!', 'warning')
             return redirect(url_for('main.alerts'))
     try:
-        response = requests.get(f'https://airlabs.co/api/v9/suggest?q={icao_code}&api_key={current_app.config["AIR_LABS_API_KEY"]}')
+        response = requests.get(f'https://airlabs.co/api/v9/suggest?q={icao_code}&api_key={current_app.config["AIR_LABS_API_KEY"]}&lang=DE')
         response.raise_for_status()
     except HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')
@@ -148,7 +144,7 @@ def saveAircraft(icao_code, airport):
                 return redirect(url_for('main.alerts'))
         db.session.add(Aircraft(name=aircraft['manufacturer'] + " " + aircraft['name'], icao=aircraft['icaoCode'], airport_id=airport, user_id=current_user.id))
         db.session.commit()
-    return redirect(url_for('main.alerts'))
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @main.route("/delete-airport/<int:id>", methods=['GET', 'POST'])
 @login_required
@@ -161,7 +157,6 @@ def deleteAirport(id):
     aircrafts = Aircraft.query.all()
     for aircraft in aircrafts:
         if aircraft.airport_id == id:
-            print("ddd")
             db.session.delete(Aircraft.query.get_or_404(aircraft.id))
             db.session.commit()
     
@@ -180,4 +175,4 @@ def deleteAircraft(id):
         return redirect(url_for('main.alerts'))
     db.session.delete(aircraft)
     db.session.commit()
-    return redirect(url_for('main.alerts'))
+    return redirect(url_for('main.alerts', _anchor=airport.icao))

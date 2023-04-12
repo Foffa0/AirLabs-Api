@@ -111,7 +111,9 @@
         <div class="airport-list">
             {% if airports %}
                 {% for airport in airports %}
-                    <div class="airport">
+                    <div class="airport" id="{{ airport.icao }}">
+
+                        <div id="loading"></div>
                         
                         {% if airport.icao == searchAirportIcao %}
                         <button type="button" class="collapsible">{{ airport.name }} - {{ airport.icao }}/{{ airport.iata }}</button>
@@ -125,7 +127,7 @@
                                 <form id="aircraft-search-form" name="aircraft_form" method="POST" action="{{ url_for('main.searchAircraft') }}">
                                     {{ aircraftForm.hidden_tag() }}
                                     {{ aircraftForm.airport_icao(value=airport.icao, class_="invisible") }}
-                                    <div class="searchbar">
+                                    <div class="searchbar aircraft-search">
                                         {% if aircraftForm.query.errors %}
                                             {{ aircraftForm.query(class="form-control form-control-lg is-invalid") }}
                                             <div class="invalid-feedback">
@@ -168,7 +170,7 @@
                                                     {% endif %}
                                                 {% endfor %}
                                                 {% if not ns.found %}
-                                                <button class="new-btn" type="button" onclick="window.location.href='/save-aircraft/{{ aircraft.icao_code }}/{{ airport.id }}';">Add <i class="fa fa-solid fa-plus"></i></button>
+                                                <button class="new-btn" type="button" onclick="addAircraft(this, '{{ aircraft.icao_code }}', {{ airport.id }});">Add <i class="fa fa-solid fa-plus"></i></button>
                                                 {% endif %}
                                             </div>
                                         {% endfor %}
@@ -176,6 +178,7 @@
                                 {% endif %}
                             </div>
                             <h2>My aircrafts</h2>
+                            <a id="reload-btn" href="/alerts" style="margin: 2rem;display: flex;justify-content: center; display: none;"><button style="background-color: rgb(255, 187, 0) !important; color: #000;" class="new-btn">Aircrafts reload required</button></a>
                             {% for aircraft in aircrafts %}
                                 {% if aircraft.airport_id == airport.id %}
                                 <div class="result">
