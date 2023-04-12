@@ -1,16 +1,15 @@
 import os.path
-from flask import current_app
+from flask import redirect, flash, url_for, Blueprint
+from flask_login import current_user
 from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import base64
 from email.message import EmailMessage
 from email.mime.text import MIMEText
 import pickle
-from app.models import User
 
+email = Blueprint('email', __name__)
 
 def send__email(user, type):
   '''
@@ -18,7 +17,6 @@ def send__email(user, type):
   :param type: 0: account activation; 1: password reset
   '''
 
-  SCOPES = ['https://mail.google.com/']
   creds = None
   # The file token.json stores the user's access and refresh tokens, and is
   # created automatically when the authorization flow completes for the first
@@ -30,23 +28,19 @@ def send__email(user, type):
   # print("0")
 
   if os.path.exists('token.pickle'):
-
     # Read the token from the file and store it in the variable creds
     with open('token.pickle', 'rb') as token:
       creds = pickle.load(token)
 
   # If credentials are not available or are invalid, ask the user to log in.
   if not creds or not creds.valid:
-    if user.admin:
-      if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-      else:
-        flow = InstalledAppFlow.from_client_secrets_file(current_app.config['OAUTH2_TOKEN'], SCOPES)
-        creds = flow.run_local_server(port=0)
-
-      # Save the access token in token.pickle file for the next run
+    if creds and creds.expired and creds.refresh_token:
+      creds.refresh(Request())
       with open('token.pickle', 'wb') as token:
         pickle.dump(creds, token)
+    else:
+      flash('Please login to request the credentials')
+      return -1
   try:
     service = build('gmail', 'v1', credentials=creds)
     if type == 0:
@@ -95,13 +89,13 @@ def send__email(user, type):
 
         <body>
           <div class="content">
-            <img src="https://e0.flightcdn.com/images/nav/flightaware-logo.png" alt="logo">
+            <img src="https://flight-alert.duckdns.org/static/img/logo.png" alt="logo">
             <p class="message"><span class="greeting">Hello {user.firstName},</span>
                 <br>Your FlightAlert account has been successfully created.  
                 <br>Please, confirm your email to activate your account. 
                 <br>The account will be deleted automatically if you do not confirm it. 
             </p>
-            <a class="confirm" href="account/confirm/{account_token}">Confirm Email</a>
+            <a class="confirm" href="https://flight-alert.duckdns.org/account/confirm/{account_token}">Confirm Email</a>
             <p class="muted">If you did not request this email, you can simply ignore it. No account will be confirmed if you do not click the link above.</p>
           </div>
         </body>
@@ -153,12 +147,12 @@ def send__email(user, type):
 
         <body>
           <div class="content">
-            <img src="https://e0.flightcdn.com/images/nav/flightaware-logo.png" alt="logo">
+            <img src="https://flight-alert.duckdns.org/static/img/logo.png" alt="logo">
             <p class="message"><span class="greeting">Forgot your password?</span>
                 <br>That's okay, it happens!  
                 <br>Click the link below to reset your FlightAlert password 
             </p>
-            <a class="confirm" href="reset_password/{account_token}">Confirm Email</a>
+            <a class="confirm" href="https://flight-alert.duckdns.org/reset_password/{account_token}">Confirm Email</a>
             <p class="muted">If you did not request this email, you can simply ignore it. Your password will not change if you click do not click the link above.</p>
           </div>
         </body>
@@ -172,11 +166,12 @@ def send__email(user, type):
     encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
     create_message = {
-        'raw': encoded_message
+      'raw': encoded_message
     }
     # pylint: disable=E1101
     send_message = (service.users().messages().send(userId="me", body=create_message).execute())
     print(F'Message Id: {send_message["id"]}')
+    return 1
   except HttpError as error:
     print(F'An error occurred: {error}')
     send_message = None

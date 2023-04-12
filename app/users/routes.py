@@ -1,12 +1,16 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app, abort
+from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app, abort, session
 from flask_login import login_user, current_user, logout_user, login_required
 #from app import db, bcrypt
 from app.models import User, Aircraft, Airport, Notification, Alert
 from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, UpdatePasswordForm, RequestResetForm, ResetPasswordForm
 from app import db, bcrypt
 import datetime
+from hashlib import sha256
+from google_auth_oauthlib.flow import InstalledAppFlow
 from app.users.utils import send__email
-from app.decorators import check_confirmed
+from app.decorators import check_confirmed, admin_required
+import os
+import pickle
 
 users = Blueprint('users', __name__)
 
@@ -33,11 +37,15 @@ def register():
 @users.route('/account/confirm/<token>')
 @login_required
 def confirm_email(token):
+    if current_user.confirmed:
+        flash('Account already confirmed', 'warning')
+        return redirect(url_for('main.index'))
     try:
         user_email = current_user.verify_activation_token(token)
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
         return redirect(url_for('users.unconfirmed'))
+    
     if user_email is None:
         flash('The confirmation link is invalid or has expired.', 'danger')
         return redirect(url_for('users.unconfirmed'))
@@ -56,14 +64,23 @@ def confirm_email(token):
 @users.route('/resend')
 @login_required
 def resend_confirmation():
-    send__email(current_user, 0)
-    flash('A new confirmation email has been sent.', 'success')
-    return redirect(url_for('users.unconfirmed'))
+    if not current_user.confirmed:
+        response = send__email(current_user, 0)
+
+        # check if the oauth2 client token needs to be renewed
+        if (response == -1 and current_user.admin):
+            return redirect(url_for('users.authorize'))
+        
+        flash('A new confirmation email has been sent.', 'success')
+        return redirect(url_for('users.unconfirmed'))
+    flash('Account already confirmed', 'warning')
+    return redirect(url_for('main.index'))
 
 @users.route('/activate_account')
 @login_required
 def unconfirmed():
     if current_user.confirmed:
+        flash('Account already confirmed', 'warning')
         return redirect(url_for('main.index'))
     return render_template('public/activate_account.html')
 
@@ -72,6 +89,7 @@ def unconfirmed():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -123,9 +141,15 @@ def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = RequestResetForm()
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        send__email(user, 1)
+        response = send__email(user, 1)
+
+        # check if the oauth2 client token needs to be renewed
+        if response == -1 and current_user.admin:
+            return redirect(url_for('users.authorize'))
+
         flash(f'An email with a reset link has been sent to {user.email}.', 'info')
         return redirect(url_for('users.login'))
     return render_template('public/reset_request.html', title='Request password reset', form=form)
@@ -189,8 +213,9 @@ def account_delete(id):
 @users.route("/admin/toggle/<int:id>", methods=['GET', 'POST'])
 @login_required
 @check_confirmed
+@admin_required
 def admin_state(id):
-    if current_user.id == id or not current_user.admin:
+    if current_user.id == id:
         abort(403)
     
     user = User.query.get(id)
@@ -212,63 +237,109 @@ def admin_state(id):
 @users.route("/admin")
 @login_required
 @check_confirmed
+@admin_required
 def admin():
-    if current_user.admin:
-        users = User.query.all()
-        airports = Airport.query.all()
-        aircrafts = Aircraft.query.all()
-        devices = Notification.query.all()
-        alerts = Alert.query.all()
-        return render_template('admin/admin.html', title='Admin FlightAlert', userCount=len(users), airportCount=len(airports), aircraftCount=len(aircrafts), devicesCount=len(devices), alertCount=len(alerts))
-    else:
-        abort(403)
+    users = User.query.all()
+    airports = Airport.query.all()
+    aircrafts = Aircraft.query.all()
+    devices = Notification.query.all()
+    alerts = Alert.query.all()
+    return render_template('admin/admin.html', title='Admin FlightAlert', userCount=len(users), airportCount=len(airports), aircraftCount=len(aircrafts), devicesCount=len(devices), alertCount=len(alerts))
 
 @users.route("/admin/users")
 @login_required
 @check_confirmed
+@admin_required
 def admin_users():
-    if current_user.admin:
-        users = User.query.all()
-        return render_template('admin/admin_details.html', title='Admin FlightAlert', users=users, airports=None, aircrafts=None, devices=None, alerts=None)
-    else:
-        abort(403)
+    users = User.query.all()
+    return render_template('admin/admin_details.html', title='Admin FlightAlert', users=users, airports=None, aircrafts=None, devices=None, alerts=None)
 
 @users.route("/admin/airports")
 @login_required
 @check_confirmed
+@admin_required
 def admin_airports():
-    if current_user.admin:
-        airports = Airport.query.all()
-        return render_template('admin/admin_details.html', title='Admin FlightAlert', airports=airports, users=None, aircrafts=None, devices=None, alerts=None)
-    else:
-        abort(403)
+    airports = Airport.query.all()
+    return render_template('admin/admin_details.html', title='Admin FlightAlert', airports=airports, users=None, aircrafts=None, devices=None, alerts=None)
 
 @users.route("/admin/aircrafts")
 @login_required
 @check_confirmed
+@admin_required
 def admin_aircrafts():
-    if current_user.admin:
         aircrafts = Aircraft.query.all()
         return render_template('admin/admin_details.html', title='Admin FlightAlert', aircrafts=aircrafts, airports=None, users=None, devices=None, alerts=None)
-    else:
-        abort(403)
 
 @users.route("/admin/devices")
 @login_required
 @check_confirmed
+@admin_required
 def admin_devices():
-    if current_user.admin:
-        devices = Notification.query.all()
-        return render_template('admin/admin_details.html', title='Admin FlightAlert', devices=devices, airports=None, aircrafts=None, users=None, alerts=None)
-    else:
-        abort(403)
+    devices = Notification.query.all()
+    return render_template('admin/admin_details.html', title='Admin FlightAlert', devices=devices, airports=None, aircrafts=None, users=None, alerts=None)
 
 @users.route("/admin/alerts")
 @login_required
 @check_confirmed
+@admin_required
 def admin_alerts():
-    if current_user.admin:
-        alerts = Alert.query.all()
-        return render_template('admin/admin_details.html', title='Admin FlightAlert', alerts=alerts, airports=None, aircrafts=None, devices=None, users=None)
-    else:
-        abort(403)
+    alerts = Alert.query.all()
+    return render_template('admin/admin_details.html', title='Admin FlightAlert', alerts=alerts, airports=None, aircrafts=None, devices=None, users=None)
+
+
+@users.route("/oauth/authorize")
+@login_required
+@check_confirmed
+@admin_required
+def authorize():
+    SCOPES = ['https://mail.google.com/']
+    flow = InstalledAppFlow.from_client_secrets_file(current_app.config['OAUTH2_TOKEN'], SCOPES)
+
+    # Indicate where the API server will redirect the user after the user completes
+    # the authorization flow. The redirect URI is required. The value must exactly
+    # match one of the authorized redirect URIs for the OAuth 2.0 client, which you
+    # configured in the API Console. If this value doesn't match an authorized URI,
+    # you will get a 'redirect_uri_mismatch' error.
+    flow.redirect_uri = 'https://flight-alert.duckdns.org/oauth2callback'
+
+    stateHash = sha256(os.urandom(1024)).hexdigest()
+     
+    # Generate URL for request to Google's OAuth 2.0 server.
+    # Use kwargs to set optional request parameters.
+    authorization_url, state = flow.authorization_url(
+        # Enable offline access so that you can refresh an access token without
+        # re-prompting the user for permission. Recommended for web server apps.
+        access_type='offline',
+        state=stateHash,
+        login_hint='noreply.airportactivity@gmail.com',
+        # Enable incremental authorization. Recommended as a best practice.
+        include_granted_scopes='true')
+    session['state'] = state
+    return redirect(authorization_url)
+
+@users.route('/oauth2callback')
+@login_required
+@check_confirmed
+@admin_required
+def oauth2callback():
+    SCOPES = ['https://mail.google.com/']
+    # Specify the state when creating the flow in the callback so that it can
+    # verified in the authorization server response.
+    state = session['state']
+
+    flow = InstalledAppFlow.from_client_secrets_file(
+        current_app.config['OAUTH2_TOKEN'], scopes=SCOPES, state=state)
+    flow.redirect_uri = 'https://flight-alert.duckdns.org/oauth2callback'
+
+    # Use the authorization server's response to fetch the OAuth 2.0 tokens.
+    authorization_response = 'https://flight-alert.duckdns.org' + request.full_path
+    flow.fetch_token(authorization_response=authorization_response)
+
+    credentials = flow.credentials
+
+    # Save the access token in token.pickle file for the next run
+    with open('token.pickle', 'wb') as token:
+        pickle.dump(credentials, token)
+  
+    flash('succesfully updated credentials')
+    return redirect(url_for('main.index'))
