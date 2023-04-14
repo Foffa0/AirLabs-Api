@@ -1,0 +1,14 @@
+{
+    "name": "FlightAlert",
+    "short_name": "FlightAlert",
+    "icons": [
+        {
+            "src": "android-chrome-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#0068ff",
+    "background_color": "#0068ff",
+    "display": "standalone"
+}
