@@ -122,7 +122,8 @@ def saveAirport(icao_code):
         print(f'Other error occurred: {err}')
     else:
         response = response.json()["response"]["airports"][0]
-        airport = Airport(name=response["name"], icao=response["icao_code"], iata=response["iata_code"], user_id=current_user.id)
+        airportInfo = Airport_info(response)
+        airport = Airport(name=airportInfo.name, icao=airportInfo.icao_code, iata=airportInfo.icao_code, user_id=current_user.id)
         db.session.add(airport)
         db.session.commit()
     return redirect(url_for('main.alerts'))
