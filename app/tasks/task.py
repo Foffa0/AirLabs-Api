@@ -98,7 +98,7 @@ def _build_flight_alert_message(token, schedule, airport):
       }
     }
 
-def run_continuously(app, interval=60):
+def run_continuously(app, interval=3600):
   """Continuously run, while executing pending jobs at each
   elapsed time interval.
   @return cease_continuous_run: threading. Event which can
@@ -115,12 +115,12 @@ def run_continuously(app, interval=60):
     @classmethod
     def run(cls):
       with app.app_context():
-        schedule.every().minute.do(background_job, app=app)
+        schedule.every().day.do(background_job, app=app)
         while not cease_continuous_run.is_set():
           schedule.run_pending()
-          # randomise the sleep time to avoid webscraping strikes from flight aware
-          #time.sleep(interval + random.randint(0,300))
-          time.sleep(interval)
+          #randomise the sleep time to avoid webscraping strikes from flight aware
+          time.sleep(interval + random.randint(0,300))
+          # time.sleep(interval)
 
   continuous_thread = ScheduleThread()
   continuous_thread.setDaemon(True)
