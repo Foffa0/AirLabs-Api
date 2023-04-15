@@ -13,8 +13,16 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: 'Open Sans', sans-serif;
+ font-weight: 300;
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+   }
+
+
 
 .container {
     max-width: 1170px;;
@@ -128,6 +136,7 @@ main {
     padding-right: 1.25rem;
     padding-left: 1.25rem;
     margin-top: 8rem;
+    margin-bottom: 8rem;
 }
 
 .header {
@@ -268,14 +277,24 @@ main {
 
 .alert-section {
     margin-top: 2rem;
+    margin-bottom: 10rem;
 }
 
 .airports h2,
 .alerts h2 {
     font-size: 2rem;
-    font-weight: 400;
-    color: #506690;
-    margin-bottom: 2rem;
+    font-weight: 600;
+    color: #2e323a;
+    margin-bottom: 1rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.subtitle {
+    text-align: center;
+    font-weight: 300;
+    margin-bottom: 4rem;
+    margin-bottom: 3rem;
 }
 
 .alerts {
@@ -308,6 +327,7 @@ main {
     visibility: visible;
 }
 
+
 #airport-search-form {
     position: relative;
     display: flex;
@@ -321,14 +341,18 @@ main {
     flex-flow: column nowrap;
     justify-content: space-around;
     margin-block: 2rem;
-    background-color: hsla(226, 81%, 56%, 0.123);
     border-radius: .5rem;
     padding: .1rem;
+    margin-bottom: 5rem;
 }
 
 .searchbar {
     position: relative;
     width: 50%;
+}
+
+.search {
+    margin-bottom: 3rem;
 }
 
 .search form .search-btn {
@@ -361,13 +385,30 @@ main {
     padding: 0rem;
 }
 
-#search_option label {
-    position: relative;
-    padding-left: 2rem;
+#search_option {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: white;
+    border-style: none solid none none;
+    border-radius: 1rem 0rem 0rem 1rem;
+    padding-left: 1rem;
+    font-weight: lighter;
+    color: #888;
+    font-family: 'Archivo', sans-serif;
 }
 
+.airport button.search-btn {
+    background: rgb(255,255,255) !important;
+    background: -moz-linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 15%, rgba(255,255,255,1) 100%) !important;
+    background: -webkit-linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 15%, rgba(255,255,255,1) 100%) !important;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 15%, rgba(255,255,255,1) 100%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ffffff",endColorstr="#ffffff",GradientType=1) !important; 
+    padding-left: .5rem;
+}
 
-/* Hide the browser's default checkbox */
+/* Hide the browser's default checkbox
 #search_option input {
     position: absolute;
     opacity: 0;
@@ -376,7 +417,7 @@ main {
     width: 0;
 }
   
-  /* Create a custom checkbox */
+  /* Create a custom checkbox *//*
 #search_option label::before {
     content: '';
     position: absolute;
@@ -389,7 +430,7 @@ main {
     transition: all 250ms ease-in-out;
 }
   
-  /* On mouse-over, add a grey background color */
+  /* On mouse-over, add a grey background color *//*
 #search_option li:hover input ~  label::before {
     background-color: #ccc;
 }
@@ -398,24 +439,24 @@ main {
     background-color: var(--primary-color);
 }
   
-  /* When the checkbox is checked, add a blue background */
+  /* When the checkbox is checked, add a blue background *//*
 #search_option input:checked ~ label::before {
     background-color: var(--primary-color);
 }
   
-  /* Create the checkmark/indicator (hidden when not checked) */
+  /* Create the checkmark/indicator (hidden when not checked) *//*
 #search_option label::after {
     content: "";
     position: absolute;
     display: none;
 }
   
-  /* Show the checkmark when checked */
+  /* Show the checkmark when checked *//*
 #search_option input:checked ~ label::after {
     display: block;
 }
   
-  /* Style the checkmark/indicator */
+  /* Style the checkmark/indicator *//*
 #search_option  label::after{
     top: 6px;
     left: 6px;
@@ -423,12 +464,7 @@ main {
     height: 8px;
     border-radius: 50%;
     background: white;
-}
-
-
-.search-option-radio li{
- margin-inline: 1rem;
-}
+} */
 
 #airport-search {
     display: block;
@@ -443,6 +479,12 @@ main {
     border-radius: .5rem;
 }
 
+.aircraft-search {
+    margin: auto;
+    margin-top: 1rem;
+    width: 80%;
+}
+
 #aircraft-search {
     display: block;
     width: 100%;
@@ -454,9 +496,11 @@ main {
     border: none;
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
     border-radius: .5rem;
+    padding-left: 9rem;
 }
 
 .result {
+    position: relative;
     width: 100%;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
@@ -468,10 +512,22 @@ main {
     background: white;
 }
 
+.result .new-btn {
+    white-space: nowrap;
+}
+
 .result p {
-    margin-inline: 1rem;
+    width: 100%;
+    height: 100%;
+    padding-left: 1rem;
     margin-bottom: 0rem;
 }
+
+.airport .result :not(.new-btn, .fa):hover{
+    text-decoration: dashed;
+    text-decoration-line: underline;
+}
+
 
 .fa {
     display: flex;
@@ -479,7 +535,20 @@ main {
 }
 
 .airport {
-    margin-bottom: 1rem;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+
+#loading {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 5;
 }
 
 .airport:has(.active) {
@@ -817,6 +886,80 @@ from {top: -300px; opacity: 0}
 to {top: 0; opacity: 1}
 } 
 
+.policy h1 {
+    margin-block: 5rem 3rem;
+}
+
+.policy h2 {
+    margin-block: 5rem 3rem;
+}
+
+.policy hr {
+    margin-block: 3rem;
+}
+
+
+footer {
+    background-color: #121315;
+    color: #a7a7a7;
+    margin-top: 5rem;
+    padding-top: 3rem;
+}
+
+footer h3 {
+    font-weight: 400;
+    color: white;
+}
+
+footer ul {
+    padding-left: 0rem;
+}
+
+footer li {
+    margin: .5rem 0rem;
+    list-style: none;
+}
+
+footer a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.footer-row {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    justify-items: center;
+    margin-inline: 2rem;
+}
+
+.footer-column {
+    width: 100%;
+    margin-inline: 2rem;
+}
+
+.footer-column:first-of-type, 
+.footer-column:last-of-type {
+    flex: 2;
+}
+
+.footer-column:nth-of-type(2), 
+.footer-column:nth-of-type(3) {
+    flex: 1;
+}
+
+.copyright {
+    background-color: #25262e;
+    padding: .1rem 3rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+.copyright p {
+    margin-block: 1rem;
+    text-align: right;
+}
+
+
 @media (max-width: 75em){
     .header-container,
     .header-alerts {
@@ -850,6 +993,10 @@ to {top: 0; opacity: 1}
     .container {
         max-width: 800px;
     }
+
+    .footer-row {
+        flex-flow: column nowrap;
+    }
 }
 
 @media (max-width: 55em) {
@@ -858,7 +1005,7 @@ to {top: 0; opacity: 1}
     }
 
     .header-img {
-        width: 100%
+        width: 65%
     }
 
     .header {
@@ -866,8 +1013,12 @@ to {top: 0; opacity: 1}
         text-align: center;
     }
 
+    .header button{
+        margin: auto;
+    }
+
     .shape {
-        transform: translateX(-25%) scale(1.3);
+        transform: translateX(-45%) scale(1.1);
     }
 
     .nav-links {
@@ -892,6 +1043,24 @@ to {top: 0; opacity: 1}
     .account-info-wrapper .account-value,
     .account-info-wrapper input {
         flex-basis: 100%;
+    }
+
+    .airport .search {
+        margin-bottom: 6rem;
+    }
+
+    .aircraft-search {
+        width: 100%;
+    }
+
+    #aircraft-search {
+        padding-left: 1rem;
+    }
+
+    .search-option-radio {
+        top: 111% !important;
+        width: 100%;
+        border-radius: 0rem !important;
     }
 }
 
@@ -926,5 +1095,14 @@ to {top: 0; opacity: 1}
     #request-token_div h4,
     #permission_div h4 {
         margin-bottom: 1rem;
+    }
+
+    .result .new-btn {
+        font-size: 0rem;
+    }
+    .result .fa {
+        font-size: initial;
+        margin-left: 0rem;
+        margin-inline: 1rem;
     }
 }
