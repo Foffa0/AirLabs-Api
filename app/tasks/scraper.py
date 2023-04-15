@@ -122,10 +122,12 @@ class FlightAwareScraper:
 
         schedule = []
 
-        while datetime.date.today() + datetime.timedelta(days=7) != date or counter <= 800:
+        while datetime.datetime((datetime.date.today() + datetime.timedelta(days=6)).year, (datetime.date.today() + datetime.timedelta(days=6)).month, (datetime.date.today() + datetime.timedelta(days=6)).day) >= datetime.datetime(date.year, date.month, date.day):
+            if counter > 800:
+                break
 
             source = urllib.request.urlopen(f'https://de.flightaware.com/live/airport/{airportCode}/arrivals?;offset={counter};order=actualarrivaltime;sort=ASC')
-            print(counter)
+          
             counter += 40
             soup = BeautifulSoup(source, 'lxml')
 
@@ -157,9 +159,6 @@ class FlightAwareScraper:
                 unix_time = datetime.datetime.timestamp(date_format)
                 schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 0))
                 
-            
-            if datetime.date.today() + datetime.timedelta(days=7) == date or counter >= 800:
-                break
 
         ### planned Arrivals ###
 
@@ -167,10 +166,11 @@ class FlightAwareScraper:
         counter = 0
         date = datetime.date.today()
 
-        while datetime.date.today() + datetime.timedelta(days=7) != date or counter <= 800:
+        while datetime.datetime((datetime.date.today() + datetime.timedelta(days=6)).year, (datetime.date.today() + datetime.timedelta(days=6)).month, (datetime.date.today() + datetime.timedelta(days=6)).day) >= datetime.datetime(date.year, date.month, date.day):
+            if counter > 800:
+                break
             #create request
             a_source = urllib.request.urlopen(f'https://de.flightaware.com/live/airport/{airportCode}/enroute?;offset={counter};order=estimatedarrivaltime;sort=ASC')
-            print(counter)
             counter += 40
             a_soup = BeautifulSoup(a_source, 'lxml')
 
@@ -200,11 +200,7 @@ class FlightAwareScraper:
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[5].text).group(), "%Y-%m-%d, %H:%M")
                 unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].span.get("title"), table_cell.find_all('td')[1].text, unix_time, 0))
-                
-
-            if datetime.date.today() + datetime.timedelta(days=7) == date or counter >= 800:
-                break
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 0))
 
 
         ### Departures ###
@@ -213,7 +209,9 @@ class FlightAwareScraper:
         counter = 0
         date = datetime.date.today()
 
-        while datetime.date.today() + datetime.timedelta(days=7) != date or counter <= 800:
+        while datetime.datetime((datetime.date.today() + datetime.timedelta(days=6)).year, (datetime.date.today() + datetime.timedelta(days=6)).month, (datetime.date.today() + datetime.timedelta(days=6)).day) >= datetime.datetime(date.year, date.month, date.day):
+            if counter > 800:
+                break
             #create request
             source = urllib.request.urlopen(f'https://de.flightaware.com/live/airport/{airportCode}/departures?;offset={counter};order=actualdeparturetime;sort=ASC')
             counter += 40
@@ -227,9 +225,9 @@ class FlightAwareScraper:
             if table.find_all('td')[0].has_attr('class'):
                 if table.find_all('td')[0]['class'][0] == 'row1':
                     break
-
             # iterate through the whole table
             for table_cell in table.find_all('tr'):
+                
                 # get date from the weekday in the table
                 if table_cell.find_all('td')[3].text.startswith(calendar.day_abbr[date.weekday()]):
                     date = date
@@ -245,10 +243,7 @@ class FlightAwareScraper:
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[3].text).group(), "%Y-%m-%d, %H:%M")
                 unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].span.get("title"), table_cell.find_all('td')[1].text, unix_time, 1))
-                
-                if datetime.date.today() + datetime.timedelta(days=7):
-                    break
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 1))
 
 
         ### planned Departures ###
@@ -257,7 +252,9 @@ class FlightAwareScraper:
         counter = 0
         date = datetime.date.today()
 
-        while datetime.date.today() + datetime.timedelta(days=7) != date or counter <= 800:
+        while datetime.datetime((datetime.date.today() + datetime.timedelta(days=6)).year, (datetime.date.today() + datetime.timedelta(days=6)).month, (datetime.date.today() + datetime.timedelta(days=6)).day) >= datetime.datetime(date.year, date.month, date.day):
+            if counter > 800:
+                break
             #create request
             source = urllib.request.urlopen(f'https://de.flightaware.com/live/airport/{airportCode}/scheduled?;offset={counter};order=filed_departuretime;sort=ASC')
             counter += 40
@@ -289,8 +286,6 @@ class FlightAwareScraper:
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[3].text).group(), "%Y-%m-%d, %H:%M")
                 unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].span.get("title"), table_cell.find_all('td')[1].text, unix_time, 1))
-                
-                if datetime.date.today() + datetime.timedelta(days=7):
-                    break
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 1))
+        print("finished scraping")
         return(schedule)
