@@ -100,15 +100,68 @@ window.onclick = function(event) {
   }
 };
 
-var aircraftSearch = document.getElementById("aircraft-search");
-var radios = document.forms["aircraft_form"].elements["search_option"];
+// try {
+//   var aircraftSearch = document.getElementById("aircraft-search");
+//   var radios = document.forms["aircraft_form"].elements["search_option"];
 
-for(var i = 0; i < radios.length; i++) {
-  radios[i].onclick = function() {
-    if (this.value == 1) {
-      aircraftSearch.type = 'text'
-    } else {
-      aircraftSearch.type = 'number'
+//   for(var i = 0; i < radios.length; i++) {
+//     radios[i].onclick = function() {
+//       if (this.value == 1) {
+//         aircraftSearch.type = 'text'
+//       } else {
+//         aircraftSearch.type = 'number'
+//       }
+//     }
+//   };
+// }
+// catch {}
+
+async function addAircraft(btn, aircraft, airport) {
+  var loading = document.getElementById("loading");
+  var loadBtn = document.getElementById("reload-btn");
+  loading.style.display = "block";
+  await fetch("/save-aircraft/" + aircraft + "/" + airport, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
     }
+  })
+  .then(response => {
+    if (response.status === 200) {
+      btn.style.backgroundColor = "rgb(0, 202, 34)";
+      btn.innerText = "Added";
+      loadBtn.style.display = "block";
+    }
+    loading.style.display = "none";
+  })
+  .catch(error => {
+    loading.style.display = "none";
+  });
+}
+
+if(window.location.hash) {
+  var airport = document.getElementById(window.location.hash.toString().replace("#", ""));
+  var coll = airport.getElementsByClassName("collapsible")[0];
+
+  if (!coll.classList.contains("active")) {
+    coll.classList.toggle("active"); 
+  }
+  var content = coll.nextElementSibling;
+  if (!content.style.maxHeight){
+    content.style.maxHeight = content.scrollHeight + "px"
   }
 };
+
+
+function changeSearchType(selectInput) {
+  var searchInput = selectInput.nextElementSibling;
+  if (selectInput.value == 1) {
+    searchInput.type = 'text';
+    searchInput.placeholder = "Search Aircraft (e.g. 'A320', 'Boeing')"
+  } else {
+    searchInput.type = 'number';
+    searchInput.placeholder = "Search by engine count"
+    searchInput.min = '0';
+    searchInput.max = '12';
+  }
+}
