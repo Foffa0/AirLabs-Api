@@ -25,6 +25,9 @@ def register():
         
     form = RegistrationForm()
     if form.validate_on_submit():
+        if form.policy_accept.data is False:
+            flash('Please accept the Privacy Policy')
+            return redirect(url_for('users.register'))
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(firstName=form.firstName.data, lastName=form.lastName.data, email=form.email.data, password=hashed_password, confirmed=False, registered_on=datetime.datetime.now())
         db.session.add(user)

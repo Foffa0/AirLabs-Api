@@ -177,3 +177,7 @@ def deleteAircraft(id):
     db.session.delete(aircraft)
     db.session.commit()
     return redirect(url_for('main.alerts', _anchor=airport.icao))
+
+@main.route("/privacy-policy")
+def privacy():
+    return render_template("public/policies.html")
