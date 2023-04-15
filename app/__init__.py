@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from app.config import Config
 import datetime
+from flask_paranoid import Paranoid
 
 import firebase_admin
 from firebase_admin import credentials
@@ -25,6 +26,10 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+
+    paranoid = Paranoid(app)
+    paranoid.redirect_view = 'users.login'
+    login_manager.session_protection = None
     # with app.app_context():
     #     db.create_all()
     #     db.drop_all()
