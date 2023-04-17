@@ -202,8 +202,8 @@
                             <a id="reload-btn" href="/alerts" style="margin: 2rem;display: flex;justify-content: center; display: none;"><button style="background-color: rgb(255, 187, 0) !important; color: #000;" class="new-btn">Aircrafts reload required</button></a>
                             {% for aircraft in aircrafts %}
                                 {% if aircraft.airport_id == airport.id %}
-                                <div class="result" onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao }}')">
-                                    <p style="padding-block: .75rem;">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao }})</p>
+                                <div class="result">
+                                    <p style="padding-block: .75rem;" onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao }})</p>
                                     <button class="new-btn delete-btn delete-aircraft" type="button" onclick="window.location.href='/delete-aircraft/{{ aircraft.id }}';">Delete aircraft <i class="fa fa-solid fa-trash-can"></i></button>
                                 </div>
                                 {% endif %}

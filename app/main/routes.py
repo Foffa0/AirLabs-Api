@@ -59,7 +59,8 @@ def searchAirport():
         airports = Airport.query.filter_by(user_id=current_user.id)
         alerts = Alert.query.filter_by(user_id=current_user.id).all()
         alerts.sort(key=lambda r: r.time)
-        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, airports=airports, alerts=alerts)
+        aircrafts = Aircraft.query.all()
+        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, airports=airports, alerts=alerts, aircrafts=aircrafts)
 
 
 @main.route("/search-aircraft", methods=['GET', 'POST'])

@@ -129,7 +129,8 @@ async function addAircraft(btn, aircraft, airport) {
   .then(response => {
     if (response.status === 200) {
       btn.style.backgroundColor = "rgb(0, 202, 34)";
-      btn.innerText = "Added";
+      btn.innerHTML = "Added <i class='fa fa-solid fa-check'></i>";
+      btn.onclick = null;
       loadBtn.style.display = "block";
     }
     loading.style.display = "none";
