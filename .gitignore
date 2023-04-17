@@ -7,3 +7,4 @@ token.pickle
 database.db
 cert.pem
 key.pem
+config.py
