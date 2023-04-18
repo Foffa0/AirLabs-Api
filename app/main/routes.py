@@ -71,7 +71,7 @@ def searchAircraft():
     aircraftForm = AircraftForm()
     
     if aircraftForm.validate_on_submit():
-        query = str(aircraftForm.query.data).upper()
+        query = str(aircraftForm.query.data).lower()
         aircraftResults = []
 
         with open("app/data/aircrafts.json", "r", encoding="utf8") as read_file:
@@ -81,11 +81,11 @@ def searchAircraft():
                 if aircraftForm.search_option.data == 1:
                     new_aircraft = None
                     if aircraft['icaoCode']:
-                        if query in aircraft['icaoCode']:
+                        if query in str(aircraft['icaoCode']).lower():
                             new_aircraft = Aircraft_Info(data[x])
-                    if query in aircraft['name']:
+                    if query in str(aircraft['name']).lower():
                         new_aircraft = Aircraft_Info(data[x])
-                    elif query in aircraft['manufacturer']:
+                    elif query in str(aircraft['manufacturer']).lower():
                         new_aircraft = Aircraft_Info(data[x])
 
                     if new_aircraft:
