@@ -71,14 +71,26 @@ def searchAircraft():
     aircraftForm = AircraftForm()
     
     if aircraftForm.validate_on_submit():
-        query = str(aircraftForm.query.data).lower()
+        if aircraftForm.query.data:
+            query = str(aircraftForm.query.data).lower()
+        else:
+            query = None
+        
         aircraftResults = []
-
+        
+        # go through the aircrafts database and check for aircraft search matches
         with open("app/data/aircrafts.json", "r", encoding="utf8") as read_file:
             data = json.load(read_file)
             for x, aircraft in enumerate(data):
                 # check if engine count or aircraft name is given
-                if aircraftForm.search_option.data == 1:
+                if query is None:
+                    if aircraftForm.filter.data is None:
+                        aircraftResults.append(Aircraft_Info(data[x]))
+                    else:
+                        if Aircraft_Info(data[x]).hasTags(aircraftForm.filter.data):
+                            aircraftResults.append(Aircraft_Info(data[x]))
+
+                elif aircraftForm.search_option.data == 1:
                     new_aircraft = None
                     if aircraft['icaoCode']:
                         if query in str(aircraft['icaoCode']).lower():
@@ -89,11 +101,15 @@ def searchAircraft():
                         new_aircraft = Aircraft_Info(data[x])
 
                     if new_aircraft:
+                        if aircraftForm.filter.data and not new_aircraft.hasTags(aircraftForm.filter.data):
+                            continue
                         if not any(y.icao_code == new_aircraft.icao_code for y in aircraftResults):
-                            aircraftResults.append(Aircraft_Info(data[x]))
+                            aircraftResults.append(new_aircraft)
                 elif aircraftForm.search_option.data == 2:
                     if aircraft['engineCount'] == int(query):
                         if aircraft['icaoCode'] != None:
+                            if aircraftForm.filter.data and not Aircraft_Info(data[x]).hasTags(aircraftForm.filter.data):
+                                continue
                             if not any(y.icao_code == aircraft['icaoCode'] for y in aircraftResults):
                                 aircraftResults.append(Aircraft_Info(data[x]))
 

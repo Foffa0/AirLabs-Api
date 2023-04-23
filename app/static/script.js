@@ -118,7 +118,7 @@ window.onclick = function(event) {
 
 async function addAircraft(btn, aircraft, airport) {
   var loading = document.getElementById("loading");
-  var loadBtn = document.getElementById("reload-btn");
+  var loadBtn = document.getElementsByClassName("reload-btn");
   loading.style.display = "block";
   await fetch("/save-aircraft/" + aircraft + "/" + airport, {
     method: "POST",
@@ -131,7 +131,10 @@ async function addAircraft(btn, aircraft, airport) {
       btn.style.backgroundColor = "rgb(0, 202, 34)";
       btn.innerHTML = "Added <i class='fa fa-solid fa-check'></i>";
       btn.onclick = null;
-      loadBtn.style.display = "block";
+      for (let index = 0; index < loadBtn.length; index++) {
+        loadBtn[index].style.display = "block";
+        
+      }
     }
     loading.style.display = "none";
   })
@@ -157,12 +160,27 @@ if(window.location.hash) {
 function changeSearchType(selectInput) {
   var searchInput = selectInput.nextElementSibling;
   if (selectInput.value == 1) {
+    searchInput.style.display = "block";
     searchInput.type = 'text';
     searchInput.placeholder = "Search Aircraft (e.g. 'A320', 'Boeing')"
-  } else {
+  } else if (selectInput.value == 2) {
+    searchInput.style.display = "block";
     searchInput.type = 'number';
     searchInput.placeholder = "Search by engine count"
     searchInput.min = '0';
     searchInput.max = '12';
   }
+}
+
+var aircraftForms = document.getElementsByClassName("aircraft-search-form");
+for (var i=0; i<aircraftForms.length; i++) {
+  var pills = aircraftForms[i].querySelectorAll('input[name=filter]');
+  for (var x=0; x<pills.length; x++) {
+    pills[x].formId = "aircraft-search-form-" + (i+1).toString();
+    pills[x].addEventListener('click', submitForm, false);
+  }
+};
+
+function submitForm(evt) {
+  document.getElementById((evt.currentTarget.formId).toString()).submit();
 }
