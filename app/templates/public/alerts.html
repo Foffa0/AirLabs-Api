@@ -126,24 +126,24 @@
                         {% endif %}
                         
                             <div class="search">
-                                <form id="aircraft-search-form" name="aircraft_form" method="POST" action="{{ url_for('main.searchAircraft') }}">
+                                <form id="aircraft-search-form-{{loop.index}}" class="aircraft-search-form" name="aircraft_form" method="POST" action="{{ url_for('main.searchAircraft') }}">
                                     {{ aircraftForm.hidden_tag() }}
-                                    {{ aircraftForm.airport_icao(value=airport.icao, class_="invisible") }}
+                                    {{ aircraftForm.airport_icao(value=airport.icao, class_="invisible", id=(aircraftForm.airport_icao.id + "-" + loop.index|string) )}}
                                     <div class="searchbar aircraft-search">
 
                                         {% if aircraftForm.search_option.errors %}
-                                        {{ aircraftForm.search_option(class="form-control form-control-lg is-invalid", onchange="changeSearchType(this)") }}
+                                        {{ aircraftForm.search_option(id=(aircraftForm.search_option.id|string + "-" + loop.index|string), class="form-control form-control-lg is-invalid", onchange="changeSearchType(this)") }}
                                         <div class="invalid-feedback">
                                             {% for error in aircraftForm.search_option.errors %}
                                                 <span>{{ error }}</span>
                                             {% endfor %}
                                         </div>
                                         {% else %}
-                                            {{ aircraftForm.search_option(class="search-option-radio", onchange="changeSearchType(this)") }}
+                                            {{ aircraftForm.search_option(id=(aircraftForm.search_option.id|string + "-" + loop.index|string), class="search-option-radio", onchange="changeSearchType(this)") }}
                                         {% endif %}
 
                                         {% if aircraftForm.query.errors %}
-                                            {{ aircraftForm.query(class="form-control form-control-lg is-invalid") }}
+                                            {{ aircraftForm.query(id=("aircraft-search-" + loop.index|string), class="aircraft-search-field form-control form-control-lg is-invalid") }}
                                             <div class="invalid-feedback">
                                                 {% for error in aircraftForm.query.errors %}
                                                     <span>{{ error }}</span>
@@ -151,14 +151,25 @@
                                             </div>
                                         {% else %}
                                             {% if aircraftForm.search_option.data == 1 %}
-                                                {{ aircraftForm.query(id="aircraft-search", placeholder="Search Aircraft (e.g. 'A320', 'Boeing')", type="text") }}
+                                                {{ aircraftForm.query(id=("aircraft-search-" + loop.index|string), class="aircraft-search-field", placeholder="Search Aircraft (e.g. 'A320', 'Boeing')", type="text") }}
                                             {% else %}
-                                                {{ aircraftForm.query(id="aircraft-search", placeholder="Search by engine count", type="number") }}
+                                                {{ aircraftForm.query(id=("aircraft-search-" + loop.index|string), class="aircraft-search-field", placeholder="Search by engine count", type="number") }}
                                             {% endif %}
                                         {% endif %}
-                                        {{ aircraftForm.submit(class="search-btn", value="", style="z-index: 10;") }}
+                                        {{ aircraftForm.submit(id=(aircraftForm.submit.id|string + "-" + loop.index|string), class="search-btn", value="", style="z-index: 10;") }}
                                         <button type="button" class="search-btn"><i class="fa fa-search"></i></button>
                                     </div>
+                                    
+                                    <ul id="{{ aircraftForm.filter.id|string + '--' + loop.index|string }}" class="search-filter">
+                                        {% set airportIndex = namespace(index=loop.index) %}
+                                        {% for subfield in aircraftForm.filter %}
+                                            <li>
+                                                {{ subfield(id=(aircraftForm.filter.id|string + '--' + airportIndex.index|string + "-" + loop.index|string)) }}
+                                                {{ subfield.label(for=(aircraftForm.filter.id|string + '--' + airportIndex.index|string + "-" + loop.index|string)) }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    
 
                                     <!-- <div class="options">
                                         <p>Search options:</p>
@@ -180,7 +191,11 @@
                                         {% for aircraft in aircraftResults %}
                                             {% set ns = namespace(found=false) %}
                                             <div class="result">
-                                                <p onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao_code }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }})</p>
+                                                {% if not aircraft.icao_code %}
+                                                <p onclick="window.open('{{ aircraft.url }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }}) {% if 8 in aircraft.tags %}<span style="color: rgb(189, 0, 0);"> [Cancelled]</span>{% endif %}</p>
+                                                {% else %}
+                                                <p onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao_code }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao_code }}) {% if 8 in aircraft.tags %}<span style="color: rgb(189, 0, 0);"> [Cancelled]</span>{% endif %}</p>
+                                                {% endif %}
                                                 {% for aircraft_ in aircrafts %}
                                                     {% if aircraft_.airport_id == airport.id %}
                                                         {% if aircraft_.icao == aircraft.icao_code %}
@@ -190,7 +205,11 @@
                                                     {% endif %}
                                                 {% endfor %}
                                                 {% if not ns.found %}
-                                                <button class="new-btn" type="button" onclick="addAircraft(this, '{{ aircraft.icao_code }}', {{ airport.id }});">Add <i class="fa fa-solid fa-plus"></i></button>
+                                                    {% if aircraft.icao_code != None %}
+                                                    <button class="new-btn" type="button" onclick="addAircraft(this, '{{ aircraft.icao_code }}', {{ airport.id }});">Add <i class="fa fa-solid fa-plus"></i></button>
+                                                    {% else %}
+                                                    <button class="new-btn" type="button">---</button>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         {% endfor %}
@@ -199,11 +218,11 @@
                             </div>
                             <h2>My aircrafts</h2>
                             <div style="margin-bottom: 1rem;"><i style="color: var(--primary-color-600); margin-right: .5rem;" class="fa-solid fa-circle-info"></i>You can click on an aircraft for detailed information.</div>
-                            <a id="reload-btn" href="/alerts" style="margin: 2rem;display: flex;justify-content: center; display: none;"><button style="background-color: rgb(255, 187, 0) !important; color: #000;" class="new-btn">Aircrafts reload required</button></a>
+                            <a class="reload-btn" href="/alerts" style="margin: 2rem;display: flex;justify-content: center; display: none;"><button style="background-color: rgb(255, 187, 0) !important; color: #000;" class="new-btn">Aircrafts reload required</button></a>
                             {% for aircraft in aircrafts %}
                                 {% if aircraft.airport_id == airport.id %}
                                 <div class="result">
-                                    <p style="padding-block: .75rem;" onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao }})</p>
+                                    <p style="padding-block: .75rem;" onclick="window.open('https://www.skybrary.aero/aircraft/{{ aircraft.icao }}')">{{ aircraft.manufacturer }} {{ aircraft.name }} ({{ aircraft.icao }}){% if 8 in aircraft.tags %}<span style="color: rgb(189, 0, 0);"> [Cancelled]</span>{% endif %}</p>
                                     <button class="new-btn delete-btn delete-aircraft" type="button" onclick="window.location.href='/delete-aircraft/{{ aircraft.id }}';">Delete aircraft <i class="fa fa-solid fa-trash-can"></i></button>
                                 </div>
                                 {% endif %}
