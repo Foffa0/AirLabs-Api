@@ -9,5 +9,4 @@ RUN apt-get install -y locales locales-all
 ENV LC_TIME de_DE.UTF-8
 EXPOSE 5000
 
-ENTRYPOINT ["python3"]
-CMD ["run.py"]
+ENTRYPOINT ["./gunicorn.sh"]

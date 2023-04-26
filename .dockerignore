@@ -4,3 +4,7 @@ node_modules
 cert.pem
 key.pem
 database.db
+.git
+.gitignore
+Dockerfile
+run.py
