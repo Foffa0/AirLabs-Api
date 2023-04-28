@@ -60,7 +60,7 @@ def searchAirport():
         alerts = Alert.query.filter_by(user_id=current_user.id).all()
         alerts.sort(key=lambda r: r.time)
         aircrafts = Aircraft.query.all()
-        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, airports=airports, alerts=alerts, aircrafts=aircrafts)
+        return render_template("public/alerts.html", form=form, aircraftForm=aircraftForm, airportResults=airportResults, searchAirportIcao="airport-search", airports=airports, alerts=alerts, aircrafts=aircrafts)
 
 
 @main.route("/search-aircraft", methods=['GET', 'POST'])
@@ -140,7 +140,11 @@ def saveAirport(icao_code):
     else:
         response = response.json()["response"]["airports"][0]
         airportInfo = Airport_info(response)
-        airport = Airport(name=airportInfo.name, icao=airportInfo.icao_code, iata=airportInfo.icao_code, user_id=current_user.id)
+        for userAirport in userAirports:
+            if userAirport.iata == airportInfo.iata_code.upper():
+                flash('Airport already on the watchlist!', 'warning')
+                return redirect(url_for('main.alerts'))
+        airport = Airport(name=airportInfo.name, icao=airportInfo.icao_code, iata=airportInfo.iata_code, user_id=current_user.id)
         db.session.add(airport)
         db.session.commit()
     return redirect(url_for('main.alerts'))

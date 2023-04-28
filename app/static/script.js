@@ -117,9 +117,11 @@ window.onclick = function(event) {
 // catch {}
 
 async function addAircraft(btn, aircraft, airport) {
-  var loading = document.getElementById("loading");
+  var loading = document.getElementsByClassName("loading");
   var loadBtn = document.getElementsByClassName("reload-btn");
-  loading.style.display = "block";
+  for (let index = 0; index < loading.length; index++) {
+    loading[index].style.display = "block";
+  }
   await fetch("/save-aircraft/" + aircraft + "/" + airport, {
     method: "POST",
     headers: {
@@ -136,10 +138,14 @@ async function addAircraft(btn, aircraft, airport) {
         
       }
     }
-    loading.style.display = "none";
+    for (let index = 0; index < loading.length; index++) {
+      loading[index].style.display = "none";
+    }
   })
   .catch(error => {
-    loading.style.display = "none";
+    for (let index = 0; index < loading.length; index++) {
+      loading[index].style.display = "none";
+    }
   });
 }
 

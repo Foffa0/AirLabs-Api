@@ -582,7 +582,7 @@ main {
 }
 
 
-#loading {
+.loading {
     display: none;
     position: absolute;
     top: 0;
@@ -1095,7 +1095,7 @@ footer a {
         width: 100%;
     }
 
-    #aircraft-search {
+    .aircraft-search-field {
         padding-left: 1rem;
     }
 
@@ -1112,7 +1112,6 @@ footer a {
     .search-filter {
         margin-top: 5rem;
         margin-inline: 0rem;
-        font-size: .9rem;
         width: 100%;
         padding: 0rem;
         margin-bottom: 0rem;
@@ -1159,5 +1158,9 @@ footer a {
         font-size: initial;
         margin-left: 0rem;
         margin-inline: 1rem;
+    }
+
+    .search-filter {
+        justify-content: center;
     }
 }
