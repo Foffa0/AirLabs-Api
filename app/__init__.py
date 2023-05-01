@@ -6,6 +6,7 @@ from flask_mail import Mail
 from app.config import Config
 import datetime
 from flask_paranoid import Paranoid
+from flask_migrate import Migrate
 
 import firebase_admin
 from firebase_admin import credentials
@@ -21,6 +22,8 @@ mail = Mail()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    migrate = Migrate(app, db)
 
     db.init_app(app)
     bcrypt.init_app(app)
