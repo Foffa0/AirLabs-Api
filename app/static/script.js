@@ -60,9 +60,7 @@ var x;
 const today = new Date();
 
 for (x = 0; x < timestamps.length; x++) {
-  var unixTimestamp = timestamps[x].textContent;
-  var milliseconds = unixTimestamp * 1000;
-  var dateObject = new Date(milliseconds);
+  var dateObject = new Date(timestamps[x].textContent);
 
   if (dateObject.getDate() == today.getDate()) {
     timestamps[x].textContent = "Today, " + dateObject.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});

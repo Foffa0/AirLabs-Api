@@ -66,6 +66,7 @@ class Aircraft(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(90), nullable=False)
     icao = db.Column(db.String(4), nullable=False)
+    url = db.Column(db.String(150), nullable=True)
     airport_id = db.Column(db.Integer, db.ForeignKey('airport.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -85,7 +86,8 @@ class Alert(db.Model):
     flightnumber = db.Column(db.String(40), nullable=True)
     aircraft_icao = db.Column(db.String(4), nullable=False)
     aircraft = db.Column(db.String(80), nullable=True)
-    time = db.Column(db.Integer, nullable=False)
+    #time = db.Column(db.Integer, nullable=False)
+    time = db.Column(db.DateTime, nullable=False)
     arrival = db.Column(db.Boolean, nullable=False)
     airport_icao = db.Column(db.String(4), nullable=False)
     airport_name = db.Column(db.String(80), nullable=True)

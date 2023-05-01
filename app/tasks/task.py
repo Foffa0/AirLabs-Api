@@ -73,7 +73,7 @@ def _build_flight_alert_message(token, schedule, airport):
         'token': token,
         'notification': {
           'title': 'New Arrival!',
-          'body': f'Type: {schedule.aircraft} ({schedule.aircraft_icao}) \nAirport: {airport.name} ({airport.icao}/{airport.iata}) \nTime: {datetime.datetime.fromtimestamp(schedule.time).strftime("%b %d, %H:%M")}',
+          'body': f'Type: {schedule.aircraft} ({schedule.aircraft_icao}) \nAirport: {airport.name} ({airport.icao}/{airport.iata}) \nTime: {(schedule.time).strftime("%b %d, %H:%M")}',
         },
         'webpush': {
           'fcm_options': {
@@ -88,7 +88,7 @@ def _build_flight_alert_message(token, schedule, airport):
         'token': token,
         'notification': {
           'title': 'New Departure',
-          'body': f'Type: {schedule.aircraft} ({schedule.aircraft_icao}) \nAirport: {airport.name} ({airport.icao}/{airport.iata}) \nTime: {datetime.datetime.fromtimestamp(schedule.time).strftime("%b %d, %H:%M")}',
+          'body': f'Type: {schedule.aircraft} ({schedule.aircraft_icao}) \nAirport: {airport.name} ({airport.icao}/{airport.iata}) \nTime: {(schedule.time).strftime("%b %d, %H:%M")}',
         },
         'webpush': {
           'fcm_options': {
@@ -155,7 +155,7 @@ def background_job(app):
       airport_schedule = scraper.getAirportData(airport.icao)
     except:
       continue
-#TODO fix, that every user gets every alert
+
     users = User.query.all()
     for user in users:
       if not any(y.icao == airport.icao for y in user.airports):
@@ -175,7 +175,7 @@ def background_job(app):
                 arrival = False
               else:
                 arrival = True
-              db.session.add(Alert(flightnumber=x.flightnumber, aircraft_icao=x.aircraft_icao, aircraft=x.aircraft, time=int(x.time), arrival=arrival, airport_icao=airport.icao, airport_name=airport.name, user_id=aircraft.user_id))
+              db.session.add(Alert(flightnumber=x.flightnumber, aircraft_icao=x.aircraft_icao, aircraft=x.aircraft, time=x.time, arrival=arrival, airport_icao=airport.icao, airport_name=airport.name, user_id=aircraft.user_id))
               db.session.commit()
 
               # send push messages with fcm
@@ -193,11 +193,11 @@ def background_job(app):
   db.session.commit()
 
   # delete old alerts
-  alerts = Alert.query.all()
-  for alert in alerts:
-    if alert.time < int(time.time()):
-      db.session.delete(alert)
-  db.session.commit()
+  # alerts = Alert.query.all()
+  # for alert in alerts:
+  #   if alert.time < datetime.datetime.now():
+  #     db.session.delete(alert)
+  # db.session.commit()
 
 
 def startSchedule():

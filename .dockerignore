@@ -1,6 +1,6 @@
-/.venv
-__pycache__/
-node_modules
+.venv
+**/__pycache__
+**/node_modules
 cert.pem
 key.pem
 database.db
@@ -8,3 +8,4 @@ database.db
 .gitignore
 Dockerfile
 run.py
+migrations

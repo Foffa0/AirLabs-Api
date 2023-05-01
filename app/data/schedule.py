@@ -5,7 +5,7 @@ class ArrivalOrLanding:
         :param flightnumber: the flightnumber of this flight
         :param aircraft_icao: aircraft type in icao format
         :param aircraft: full aircraft name
-        :param time: arrival or departure time in unix format
+        :param time: arrival or departure time as datetime object
         :param type: arrival -->0 or departure -->1
         """
         self.flightnumber = flightnumber

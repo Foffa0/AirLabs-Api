@@ -156,8 +156,8 @@ class FlightAwareScraper:
 
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date)+ ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[4].text).group(), "%Y-%m-%d, %H:%M")
-                unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 0))
+                #unix_time = datetime.datetime.timestamp(date_format)
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), date_format, 0))
                 
 
         ### planned Arrivals ###
@@ -199,8 +199,8 @@ class FlightAwareScraper:
 
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[5].text).group(), "%Y-%m-%d, %H:%M")
-                unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 0))
+                #unix_time = datetime.datetime.timestamp(date_format)
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), date_format, 0))
 
 
         ### Departures ###
@@ -242,8 +242,8 @@ class FlightAwareScraper:
 
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[3].text).group(), "%Y-%m-%d, %H:%M")
-                unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 1))
+                #unix_time = datetime.datetime.timestamp(date_format)
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), date_format, 1))
 
 
         ### planned Departures ###
@@ -285,7 +285,7 @@ class FlightAwareScraper:
 
                 # convert the date and the time from the table to unix timecode
                 date_format = datetime.datetime.strptime(str(date) + ", " + re.search(r'\d{2}:\d{2}', table_cell.find_all('td')[3].text).group(), "%Y-%m-%d, %H:%M")
-                unix_time = datetime.datetime.timestamp(date_format)
-                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), unix_time, 1))
+                #unix_time = datetime.datetime.timestamp(date_format)
+                schedule.append(ArrivalOrLanding(table_cell.find_all('td')[0].text, table_cell.find_all('td')[1].text, table_cell.find_all('td')[1].span.get("title"), date_format, 1))
         print("finished scraping")
         return(schedule)
