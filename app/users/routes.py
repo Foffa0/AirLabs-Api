@@ -303,7 +303,7 @@ def authorize():
     # match one of the authorized redirect URIs for the OAuth 2.0 client, which you
     # configured in the API Console. If this value doesn't match an authorized URI,
     # you will get a 'redirect_uri_mismatch' error.
-    flow.redirect_uri = 'https://flight-alert.duckdns.org/oauth2callback'
+    flow.redirect_uri = 'https://flightalert.schmuck.home64.de/oauth2callback'
 
     stateHash = sha256(os.urandom(1024)).hexdigest()
      
@@ -332,10 +332,10 @@ def oauth2callback():
 
     flow = InstalledAppFlow.from_client_secrets_file(
         current_app.config['OAUTH2_TOKEN'], scopes=SCOPES, state=state)
-    flow.redirect_uri = 'https://flight-alert.duckdns.org/oauth2callback'
+    flow.redirect_uri = 'https://flightalert.schmuck.home64.de/oauth2callback'
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
-    authorization_response = 'https://flight-alert.duckdns.org' + request.full_path
+    authorization_response = 'https://flightalert.schmuck.home64.de' + request.full_path
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials

@@ -77,7 +77,7 @@ def _build_flight_alert_message(token, schedule, airport):
         },
         'webpush': {
           'fcm_options': {
-            'link': 'https://flight-alert.duckdns.org/alerts'
+            'link': 'https://flightalert.schmuck.home64.de/alerts'
           }
         },
       }
@@ -92,7 +92,7 @@ def _build_flight_alert_message(token, schedule, airport):
         },
         'webpush': {
           'fcm_options': {
-            'link': f'https://flight-alert.duckdns.org/alerts'
+            'link': f'https://flightalert.schmuck.home64.de/alerts'
           }
         },
       }

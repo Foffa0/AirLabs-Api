@@ -89,13 +89,13 @@ def send__email(user, type):
 
         <body>
           <div class="content">
-            <img src="https://flight-alert.duckdns.org/static/img/logo.png" alt="logo">
+            <img src="https://flightalert.schmuck.home64.de/static/img/logo.png" alt="logo">
             <p class="message"><span class="greeting">Hello {user.firstName},</span>
                 <br>Your FlightAlert account has been successfully created.  
                 <br>Please, confirm your email to activate your account. 
                 <br>The account will be deleted automatically if you do not confirm it. 
             </p>
-            <a class="confirm" href="https://flight-alert.duckdns.org/account/confirm/{account_token}">Confirm Email</a>
+            <a class="confirm" href="https://flightalert.schmuck.home64.de/account/confirm/{account_token}">Confirm Email</a>
             <p class="muted">If you did not request this email, you can simply ignore it. No account will be confirmed if you do not click the link above.</p>
           </div>
         </body>
@@ -147,12 +147,12 @@ def send__email(user, type):
 
         <body>
           <div class="content">
-            <img src="https://flight-alert.duckdns.org/static/img/logo.png" alt="logo">
+            <img src="https://flightalert.schmuck.home64.de/static/img/logo.png" alt="logo">
             <p class="message"><span class="greeting">Forgot your password?</span>
                 <br>That's okay, it happens!  
                 <br>Click the link below to reset your FlightAlert password 
             </p>
-            <a class="confirm" href="https://flight-alert.duckdns.org/reset_password/{account_token}">Confirm Email</a>
+            <a class="confirm" href="https://flightalert.schmuck.home64.de/reset_password/{account_token}">Confirm Email</a>
             <p class="muted">If you did not request this email, you can simply ignore it. Your password will not change if you click do not click the link above.</p>
           </div>
         </body>
