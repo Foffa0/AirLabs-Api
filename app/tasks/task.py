@@ -3,14 +3,22 @@ import time
 from flask import current_app
 import json
 import schedule
-from app.tasks.scraper import FlightAwareScraper
 from app.models import Notification, Aircraft, Airport, User, Alert
 from google.oauth2 import service_account
 import google.auth.transport.requests
 import requests
 import datetime
 import time
-import random
+from app.data.schedule import ArrivalOrLanding
+
+#
+# Fligh aware Aero Api
+#
+AEROAPI_BASE_URL = "https://aeroapi.flightaware.com/aeroapi"
+AEROAPI_KEY = current_app.config['AEROAPI_KEY']
+AEROAPI = requests.Session()
+AEROAPI.headers.update({"x-apikey": AEROAPI_KEY})
+ISO_TIME = "%Y-%m-%dT%H:%M:%SZ"
 
 #
 # FMC push messages
@@ -118,9 +126,7 @@ def run_continuously(app, interval=3600):
         schedule.every().day.do(background_job, app=app)
         while not cease_continuous_run.is_set():
           schedule.run_pending()
-          #randomise the sleep time to avoid webscraping strikes from flight aware
-          time.sleep(interval + random.randint(0,300))
-          # time.sleep(interval)
+          time.sleep(interval)
 
   continuous_thread = ScheduleThread()
   continuous_thread.setDaemon(True)
@@ -132,13 +138,12 @@ def background_job(app):
   # send push messages to the users' devices
   all_airports = Airport.query.all()
   
-  scraper = FlightAwareScraper()
   # save all already scraped airports in a list, so we can check for airprot duplicates 
-  scraped_airports = []
+  finished_airports = []
   
   from app import db
 
-  # remove all alerts and readd them
+  # remove all alerts and re-add them
   alerts = Alert.query.all()
   for alert in alerts:
     db.session.delete(alert)
@@ -146,13 +151,22 @@ def background_job(app):
 
   for airport in all_airports:
     # skip if the airport data was already collected
-    if airport.icao in scraped_airports:
+    if airport.icao in finished_airports:
       continue
     else:
-      scraped_airports.append(airport.icao)
+      finished_airports.append(airport.icao)
+
+      date = datetime.date.today() + datetime.timedelta(days=2)
     
     try:
-      airport_schedule = scraper.getAirportData(airport.icao)
+      airport_schedule = []
+      result = AEROAPI.get(f"{AEROAPI_BASE_URL} /airports/{airport.icao}/flights/scheduled_arrivals?end={date.strftime(ISO_TIME)}")
+      if result.status_code == 200:
+        airport_schedule.extend(format_response(result.json(), "scheduled_arrivals"))
+
+      result = AEROAPI.get(f"{AEROAPI_BASE_URL}/airports/{airport.icao}/flights/scheduled_departures?end={date.strftime(ISO_TIME)}")
+      if result.status_code == 200:
+        airport_schedule.extend(format_response(result.json(), "scheduled_departures"))
     except:
       continue
 
@@ -199,6 +213,26 @@ def background_job(app):
   #     db.session.delete(alert)
   # db.session.commit()
 
+def format_response(raw_payload, top_level):
+  formatted_payload = []
+
+  for entry in raw_payload[top_level]:
+    # convert iso dates to python datetime
+    # jsonify in the flask return will serialize python datetime to RFC 822 standard
+    for prefix in ["actual", "scheduled", "estimated"]:
+      for suffix in ["out", "off", "on", "in"]:
+        key = f"{prefix}_{suffix}"
+        if entry[key] is not None:
+          entry[key] = datetime.datetime.strptime(entry[key], ISO_TIME)
+
+    #formatted_payload.append(entry)
+    if top_level == "scheduled_arrivals":
+      formatted_payload.append(ArrivalOrLanding(entry["ident"], entry["aircraft_type"], "Empty", entry["scheduled_on"], 0))
+    elif top_level == "scheduled_departures":
+      formatted_payload.append(ArrivalOrLanding(entry["ident"], entry["aircraft_type"], "Empty", entry["scheduled_off"], 1))
+
+
+  return formatted_payload
 
 def startSchedule():
   print("Starting schedule")

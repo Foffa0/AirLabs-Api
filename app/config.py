@@ -10,11 +10,10 @@ class Config:
 
     AIR_LABS_API_KEY = os.environ.get('AIR_LABS_API_KEY')
 
-    FLIGHTAWARE_USERNAME = os.environ.get('FLIGHTAWARE_USERNAME')
-    FLIGHTAWARE_PASSWORD = os.environ.get('FLIGHTAWARE_PASSWORD')
-
     GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     
     OAUTH2_TOKEN = os.environ.get('OAUTH2_TOKEN')
 
     SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
+
+    AEROAPI_KEY = os.environ.get('AEROAPI_KEY')

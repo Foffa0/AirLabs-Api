@@ -1,5 +1,5 @@
 
-![Logo](https://flight-alert.duckdns.org/static/img/logo.png)
+![Logo](./app/static/img/logo.png)
 
 # FlightAlert - Push Notifications for flight events
 

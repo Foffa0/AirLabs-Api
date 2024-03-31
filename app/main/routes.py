@@ -18,6 +18,7 @@ main = Blueprint('main', __name__)
 
 @main.route("/")
 @main.route("/index")
+@login_required
 def index():
     return render_template("public/index.html")
 
