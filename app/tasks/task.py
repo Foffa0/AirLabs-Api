@@ -15,9 +15,7 @@ from app.data.schedule import ArrivalOrLanding
 # Fligh aware Aero Api
 #
 AEROAPI_BASE_URL = "https://aeroapi.flightaware.com/aeroapi"
-AEROAPI_KEY = current_app.config['AEROAPI_KEY']
 AEROAPI = requests.Session()
-AEROAPI.headers.update({"x-apikey": AEROAPI_KEY})
 ISO_TIME = "%Y-%m-%dT%H:%M:%SZ"
 
 #
@@ -135,6 +133,7 @@ def run_continuously(app, interval=3600):
 
 
 def background_job(app):
+  AEROAPI.headers.update({"x-apikey": current_app.config['AEROAPI_KEY']})
   # send push messages to the users' devices
   all_airports = Airport.query.all()
   
