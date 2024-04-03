@@ -160,7 +160,7 @@ def background_job(app):
     
     try:
       airport_schedule = []
-      result = AEROAPI.get(f"{AEROAPI_BASE_URL} /airports/{airport.icao}/flights/scheduled_arrivals?end={date.strftime(ISO_TIME)}")
+      result = AEROAPI.get(f"{AEROAPI_BASE_URL}/airports/{airport.icao}/flights/scheduled_arrivals?end={date.strftime(ISO_TIME)}")
       if result.status_code == 200:
         airport_schedule.extend(format_response(result.json(), "scheduled_arrivals"))
 
