@@ -160,12 +160,13 @@ def background_job(app):
     try:
       airport_schedule = []
       result = AEROAPI.get(f"{AEROAPI_BASE_URL}/airports/{airport.icao}/flights/scheduled_arrivals?end={date.strftime(ISO_TIME)}")
-      if result.status_code == 200:
-        airport_schedule.extend(format_response(result.json(), "scheduled_arrivals"))
+      #if result.status_code == 200:
+      airport_schedule.extend(format_response(result.json(), "scheduled_arrivals"))
 
       result = AEROAPI.get(f"{AEROAPI_BASE_URL}/airports/{airport.icao}/flights/scheduled_departures?end={date.strftime(ISO_TIME)}")
-      if result.status_code == 200:
-        airport_schedule.extend(format_response(result.json(), "scheduled_departures"))
+      #if result.status_code == 200:
+      airport_schedule.extend(format_response(result.json(), "scheduled_departures"))
+
     except:
       continue
 
@@ -178,11 +179,10 @@ def background_job(app):
           airport_id = user_airport.id
 
       aircrafts = Aircraft.query.filter_by(user_id=user.id)
-
       for x in airport_schedule:
         for aircraft in aircrafts:
           if aircraft.airport_id == airport_id:
-            if str(aircraft.icao) == str(x.aircraft_icao):
+            if str(aircraft.icao).lower().strip() == str(x.aircraft_icao).lower().strip():
               # add alert to user's alert page
               if x.type == 1:
                 arrival = False
@@ -214,7 +214,6 @@ def background_job(app):
 
 def format_response(raw_payload, top_level):
   formatted_payload = []
-
   for entry in raw_payload[top_level]:
     # convert iso dates to python datetime
     # jsonify in the flask return will serialize python datetime to RFC 822 standard
@@ -235,6 +234,5 @@ def format_response(raw_payload, top_level):
 
 def startSchedule():
   print("Starting schedule")
-
   # Start the background thread
   stop_run_continuously = run_continuously(current_app._get_current_object())
